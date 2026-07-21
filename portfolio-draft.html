@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<!--
+  THE DIARY OF ME — portfolio draft v1
+  Stylized-primitive Three.js scene (Layer A) + DOM content overlay (Layer B), bridged by a plain state object.
+  See docs/01-ARCHITECTURE.md for why it's built this way. This file is the v1 draft, not the final asset pass —
+  the diary and props here are procedural geometry + canvas textures, standing in for the Phase 5 Blender/Spline pass.
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>My Journey — Portfolio Draft</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..900&family=Lora:ital,wght@0,400;0,500;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<style>
+  :root{
+    --void:#0b0a08; --walnut:#4a2f1c; --leather:#2b1810;
+    --brass:#c9a15c; --parchment:#ede0c8; --ember:#ff9d52;
+    --font-display:'Fraunces',Georgia,'Iowan Old Style',serif;
+    --font-body:'Lora',Georgia,serif;
+    --font-mono:'JetBrains Mono','SF Mono',Consolas,monospace;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden;background:var(--void);color:var(--parchment);font-family:var(--font-body);}
+  button{font-family:inherit;}
+
+  #canvas-root{position:fixed;inset:0;z-index:1;transition:filter .9s ease;}
+  #canvas-root.dimmed{filter:brightness(0.5) blur(1.5px);}
+  #canvas-root canvas{display:block;}
+  #canvas-root::after{content:'';position:absolute;inset:0;pointer-events:none;
+    background:radial-gradient(ellipse at 58% 42%, transparent 0%, transparent 42%, rgba(0,0,0,0.55) 100%);}
+
+  #overlay{position:fixed;inset:0;z-index:2;pointer-events:none;}
+  #overlay > *{pointer-events:auto;}
+
+  .intro-chrome{position:absolute;top:32px;left:40px;font-family:var(--font-mono);font-size:12px;
+    letter-spacing:.15em;text-transform:uppercase;color:rgba(237,224,200,.55);
+    opacity:1;transition:opacity .5s ease;pointer-events:none;}
+  .hint{position:absolute;bottom:48px;left:50%;transform:translateX(-50%);font-family:var(--font-mono);
+    font-size:12px;letter-spacing:.08em;color:rgba(201,161,92,.75);
+    opacity:1;transition:opacity .5s ease;animation:pulse 2.4s ease-in-out infinite;pointer-events:none;}
+  .intro-chrome.fade-out,.hint.fade-out{opacity:0;}
+  @keyframes pulse{0%,100%{opacity:.35;}50%{opacity:.9;}}
+
+  #diary-spread{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    padding:24px;opacity:0;visibility:hidden;transition:opacity .6s ease;}
+  #diary-spread.visible{opacity:1;visibility:visible;}
+  .spread-inner{display:grid;grid-template-columns:1fr 1fr;max-width:920px;width:100%;max-height:80vh;
+    background:linear-gradient(180deg,rgba(237,224,200,.98),rgba(228,212,184,.98));
+    border-radius:3px;box-shadow:0 40px 100px rgba(0,0,0,.6),0 0 0 1px rgba(201,161,92,.25);
+    color:var(--leather);overflow:hidden;}
+  .page{padding:44px 40px;overflow-y:auto;}
+  .page-left{border-right:1px solid rgba(43,24,16,.12);}
+  .page.transitioning{opacity:0;transform:translateX(-8px);}
+  .page{transition:opacity .22s ease, transform .22s ease;}
+
+  .eyebrow-mini{font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;color:#9c7b3f;
+    text-transform:uppercase;margin:0 0 18px;}
+  .body-copy{font-family:var(--font-body);font-size:15.5px;line-height:1.7;margin:0 0 16px;}
+  .project-title{font-family:var(--font-display);font-size:24px;margin:0 0 4px;font-weight:700;}
+  .tagline{font-style:italic;font-size:14px;opacity:.75;margin:0 0 14px;}
+  .skill-row{margin-bottom:16px;}
+  .skill-cat{display:block;font-family:var(--font-mono);font-size:12px;letter-spacing:.06em;color:#7a4a1e;margin-bottom:3px;}
+  .skill-items{font-family:var(--font-body);font-size:14.5px;}
+  .contact-links a{color:#7a4a1e;text-decoration:none;font-family:var(--font-mono);font-size:14px;line-height:2.3;}
+  .contact-links a:hover{text-decoration:underline;}
+  .back-link{margin-top:18px;background:none;border:none;font-family:var(--font-mono);font-size:12px;
+    color:#7a4a1e;cursor:pointer;padding:0;}
+
+  .chapter-list{list-style:none;margin:0;padding:0;}
+  .chapter-list li{display:flex;align-items:baseline;gap:14px;padding:13px 0;
+    border-bottom:1px solid rgba(43,24,16,.08);cursor:pointer;font-family:var(--font-display);font-size:19px;
+    transition:color .15s ease;}
+  .chapter-list .num{font-family:var(--font-mono);font-size:12px;color:#9c7b3f;}
+  .chapter-list li:hover,.chapter-list li.active{color:#7a4a1e;}
+  .chapter-list li.active .num{color:#7a4a1e;}
+
+  .project-card{border:1px solid rgba(43,24,16,.15);border-radius:4px;padding:16px;margin-bottom:14px;
+    cursor:pointer;background:rgba(255,255,255,.35);transition:transform .18s ease, box-shadow .18s ease;}
+  .project-card:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(43,24,16,.15);}
+  .project-card h3{font-family:var(--font-display);margin:0 0 4px;font-size:18px;}
+  .project-card .tagline{margin-bottom:8px;}
+  .tag{display:inline-block;font-family:var(--font-mono);font-size:10px;letter-spacing:.04em;
+    border:1px solid #7a4a1e;color:#7a4a1e;padding:2px 8px;border-radius:10px;margin:0 6px 6px 0;}
+
+  #chapter-dots{position:absolute;right:26px;top:50%;transform:translateY(-50%);display:flex;
+    flex-direction:column;gap:13px;opacity:0;transition:opacity .5s ease;}
+  #chapter-dots.visible{opacity:1;}
+  #chapter-dots button{width:9px;height:9px;border-radius:50%;border:1px solid var(--brass);
+    background:transparent;padding:0;cursor:pointer;}
+  #chapter-dots button.active{background:var(--brass);}
+
+  #close-btn{position:absolute;top:26px;right:32px;font-family:var(--font-mono);font-size:11px;
+    letter-spacing:.1em;color:var(--parchment);background:rgba(0,0,0,.3);border:1px solid rgba(201,161,92,.4);
+    padding:8px 14px;border-radius:20px;cursor:pointer;opacity:0;transition:opacity .5s ease;}
+  #close-btn.visible{opacity:1;}
+
+  #loading-screen{position:fixed;inset:0;z-index:10;background:var(--void);display:flex;
+    align-items:center;justify-content:center;flex-direction:column;gap:16px;transition:opacity .6s ease;}
+  #loading-screen.hidden{opacity:0;pointer-events:none;}
+  .loader-title{font-family:var(--font-display);color:var(--brass);font-size:22px;letter-spacing:.02em;font-weight:700;}
+  .loader-bar{width:200px;height:2px;background:rgba(201,161,92,.2);overflow:hidden;}
+  .loader-bar span{display:block;height:100%;width:0%;background:var(--brass);transition:width .5s ease;}
+
+  button:focus-visible, li:focus-visible{outline:2px solid var(--brass);outline-offset:2px;}
+
+  @media (max-width:720px){
+    .spread-inner{grid-template-columns:1fr;max-height:84vh;}
+    .page-left{border-right:none;border-bottom:1px solid rgba(43,24,16,.12);}
+    .intro-chrome{left:20px;top:20px;font-size:10px;}
+    #chapter-dots{right:14px;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{animation-duration:.01ms !important;}
+    .page{transition:opacity .15s ease !important;transform:none !important;}
+  }
+</style>
+</head>
+<body>
+
+<div id="loading-screen">
+  <div class="loader-title">MY JOURNEY</div>
+  <div class="loader-bar"><span id="loader-fill"></span></div>
+</div>
+
+<div id="canvas-root"></div>
+
+<div id="overlay">
+  <div class="intro-chrome">Software Engineer · KTU</div>
+  <div class="hint" id="hint">click the diary to begin</div>
+
+  <div id="diary-spread">
+    <div class="spread-inner">
+      <div class="page page-left" id="page-left"></div>
+      <div class="page page-right" id="page-right"></div>
+    </div>
+  </div>
+
+  <div id="chapter-dots"></div>
+  <button id="close-btn">close ✕</button>
+</div>
+
+<script>
+(function(){
+  'use strict';
+
+  var CHAPTERS = [
+    {id:'about', num:'01', title:'About'},
+    {id:'skills', num:'02', title:'Skills'},
+    {id:'projects', num:'03', title:'Projects'},
+    {id:'experience', num:'04', title:'Experience'},
+    {id:'contact', num:'05', title:'Contact'}
+  ];
+
+  var PROJECTS = [
+    {
+      id:'ai-invoice-studio',
+      title:'AI Invoice Studio',
+      tagline:'An invoicing tool that listens.',
+      description:'Speak an invoice out loud in English, Hindi, or Malayalam, even mixed mid-sentence, and it transcribes, structures, and generates a ready PDF. Real-time multilingual transcription runs through WhisperLive wrapping faster-whisper over a WebSocket connection; a fine-tuned Qwen2.5-1.5B model handles structuring the spoken invoice into line items. Frontend in React, TypeScript, and Vite; backend on Node.js with Supabase and PostgreSQL; PDFs generated with Puppeteer.',
+      tags:['React','TypeScript','Node.js','Supabase','Qwen2.5','WhisperLive']
+    },
+    {
+      id:'whatsapp-bot',
+      title:'RIMS Shop WhatsApp Assistant',
+      tagline:'My own shop, automated.',
+      description:'A WhatsApp bot that handles customer inquiries, bookings, and order status for RIMS Shop, built on the Meta Cloud API with a finite-state-machine session flow and Redis-backed conversation state. Deployed AWS-native: ECS Fargate for compute, RDS for persistence, ElastiCache for session state, an Application Load Balancer in front, Secrets Manager for credentials, and CI/CD through GitHub Actions.',
+      tags:['AWS ECS Fargate','Redis','RDS','Meta Cloud API','GitHub Actions']
+    },
+    {
+      id:'echo',
+      title:'Echo',
+      tagline:'A murder mystery that plays itself, almost.',
+      description:'A multi-agent game built around real unsolved cold cases. A Director agent paces the story and controls reveals, NPC agents each hold their own alibi and motive and improvise consistently with it, and a Killer agent tries not to get caught under player questioning.',
+      tags:['Multi-agent systems','LLM orchestration']
+    }
+  ];
+
+  var SKILLS = [
+    {cat:'Frontend', items:'React · TypeScript · Vite · Tailwind CSS'},
+    {cat:'Backend', items:'Node.js · Python · FSM-driven service design'},
+    {cat:'AI / ML', items:'Fine-tuning (Qwen2.5-1.5B) · Real-time multilingual STT · Multi-agent systems'},
+    {cat:'Cloud / DevOps', items:'AWS (ECS Fargate, RDS, ElastiCache, ALB, Secrets Manager) · GitHub Actions'},
+    {cat:'Data', items:'PostgreSQL, Supabase · Redis'}
+  ];
+
+  var state = { diaryState:'closed', activeChapter:null, activeProject:null };
+
+  var scene, camera, renderer, lampLight, diaryPivot, coverPivot, raycaster, mouse, clock, lookAtTarget;
+  var hovering = false;
+  var introCamPos = {x:0, y:4.0, z:6.4};
+  var diaryCamPos = {x:0, y:2.5, z:2.1};
+
+  // ---------- procedural textures ----------
+  function createWoodTexture(){
+    var c = document.createElement('canvas'); c.width=512; c.height=512;
+    var ctx = c.getContext('2d');
+    ctx.fillStyle = '#4a2f1c'; ctx.fillRect(0,0,512,512);
+    for (var i=0;i<50;i++){
+      ctx.strokeStyle = 'rgba(20,12,6,'+(0.08+Math.random()*0.15)+')';
+      ctx.lineWidth = 1+Math.random()*2.5;
+      ctx.beginPath();
+      var y = Math.random()*512;
+      ctx.moveTo(0,y);
+      for (var x=0;x<=512;x+=24){ y += (Math.random()-0.5)*14; ctx.lineTo(x,y); }
+      ctx.stroke();
+    }
+    var tex = new THREE.CanvasTexture(c);
+    tex.wrapS = THREE.RepeatWrapping; tex.wrapT = THREE.RepeatWrapping;
+    tex.repeat.set(3,1.5);
+    return tex;
+  }
+
+  function drawFlourishCorner(ctx,cx,cy){
+    ctx.beginPath(); ctx.arc(cx,cy,5,0,Math.PI*2); ctx.fillStyle='#c9a15c'; ctx.fill();
+    for (var i=0;i<4;i++){
+      var ang = Math.random()*Math.PI*2;
+      var len = 22+Math.random()*34;
+      var mx = cx+Math.cos(ang)*len*0.6, my = cy+Math.sin(ang)*len*0.6;
+      ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(mx,my); ctx.stroke();
+      ctx.beginPath(); ctx.arc(mx,my,2.2,0,Math.PI*2); ctx.fill();
+    }
+  }
+
+  function createDiaryCoverTexture(){
+    var c = document.createElement('canvas'); c.width=1024; c.height=768;
+    var ctx = c.getContext('2d');
+    ctx.fillStyle = '#2b1810'; ctx.fillRect(0,0,1024,768);
+    for (var i=0;i<2200;i++){
+      ctx.fillStyle = 'rgba(0,0,0,'+(Math.random()*0.06)+')';
+      ctx.fillRect(Math.random()*1024, Math.random()*768, 2, 2);
+    }
+    ctx.strokeStyle = '#c9a15c'; ctx.lineWidth = 2; ctx.globalAlpha = 0.85;
+    ctx.strokeRect(44,44,936,680);
+    var corners = [[44,44],[980,44],[44,724],[980,724]];
+    corners.forEach(function(p){ drawFlourishCorner(ctx,p[0],p[1]); });
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = '#c9a15c';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.font = "700 88px Fraunces, Georgia, serif";
+    ctx.fillText('MY JOURNEY', 512, 350);
+    ctx.font = "500 22px 'JetBrains Mono', monospace";
+    ctx.fillStyle = 'rgba(201,161,92,0.85)';
+    ctx.fillText('— A LOG OF THINGS BUILT —', 512, 408);
+    return new THREE.CanvasTexture(c);
+  }
+
+  function createNameplateTexture(){
+    var c = document.createElement('canvas'); c.width=512; c.height=128;
+    var ctx = c.getContext('2d');
+    ctx.fillStyle = '#1c110a'; ctx.fillRect(0,0,512,128);
+    ctx.strokeStyle = '#c9a15c'; ctx.lineWidth = 2; ctx.strokeRect(6,6,500,116);
+    ctx.fillStyle = '#c9a15c'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.font = "500 18px 'JetBrains Mono', monospace";
+    ctx.fillText('HELLO, I AM —', 256, 40);
+    ctx.font = "700 30px Fraunces, Georgia, serif";
+    ctx.fillText('YOUR NAME', 256, 82);
+    return new THREE.CanvasTexture(c);
+  }
+
+  function createBookTexture(label){
+    var c = document.createElement('canvas'); c.width=256; c.height=180;
+    var ctx = c.getContext('2d');
+    ctx.fillStyle = '#c9a15c'; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.font = "600 28px 'JetBrains Mono', monospace";
+    ctx.fillText(label, 128, 90);
+    return new THREE.CanvasTexture(c);
+  }
+
+  function createGlobeTexture(){
+    var c = document.createElement('canvas'); c.width=256; c.height=256;
+    var ctx = c.getContext('2d');
+    ctx.fillStyle = '#2a4a4a'; ctx.fillRect(0,0,256,256);
+    ctx.fillStyle = '#7a6a45';
+    for (var i=0;i<14;i++){
+      ctx.beginPath();
+      var x=Math.random()*256, y=Math.random()*256;
+      ctx.ellipse(x,y,10+Math.random()*22,6+Math.random()*14,Math.random()*Math.PI,0,Math.PI*2);
+      ctx.fill();
+    }
+    return new THREE.CanvasTexture(c);
+  }
+
+  // ---------- scene objects ----------
+  function buildTable(){
+    var group = new THREE.Group();
+    var top = new THREE.Mesh(
+      new THREE.BoxGeometry(6.4,0.15,3.6),
+      new THREE.MeshStandardMaterial({map:createWoodTexture(), roughness:0.6, metalness:0.04})
+    );
+    top.receiveShadow = true;
+    group.add(top);
+    var legMat = new THREE.MeshStandardMaterial({color:0x2b1810, roughness:0.75});
+    var legGeo = new THREE.CylinderGeometry(0.09,0.11,1.7,10);
+    [[-2.9,-0.925,1.55],[2.9,-0.925,1.55],[-2.9,-0.925,-1.55],[2.9,-0.925,-1.55]].forEach(function(p){
+      var leg = new THREE.Mesh(legGeo, legMat);
+      leg.position.set(p[0],p[1],p[2]);
+      leg.castShadow = true;
+      group.add(leg);
+    });
+    return group;
+  }
+
+  function buildDiary(){
+    var pivot = new THREE.Group();
+    pivot.position.set(0, 0.16, 0.15);
+
+    var leatherMat = new THREE.MeshStandardMaterial({color:0x2b1810, roughness:0.6});
+    var back = new THREE.Mesh(new THREE.BoxGeometry(1.2,0.12,0.86), leatherMat);
+    back.castShadow = true; back.receiveShadow = true;
+    pivot.add(back);
+
+    var pages = new THREE.Mesh(
+      new THREE.BoxGeometry(1.1,0.13,0.8),
+      new THREE.MeshStandardMaterial({color:0xede0c8, roughness:0.95})
+    );
+    pages.position.y = 0.005;
+    pivot.add(pages);
+
+    coverPivot = new THREE.Group();
+    coverPivot.position.set(-0.6, 0.095, 0);
+    var sideMat = new THREE.MeshStandardMaterial({color:0x2b1810, roughness:0.6});
+    var innerMat = new THREE.MeshStandardMaterial({color:0x1c110a, roughness:0.85});
+    var faceMat = new THREE.MeshStandardMaterial({map:createDiaryCoverTexture(), roughness:0.5});
+    var cover = new THREE.Mesh(
+      new THREE.BoxGeometry(1.2,0.05,0.86),
+      [sideMat, sideMat, faceMat, innerMat, sideMat, sideMat]
+    );
+    cover.position.set(0.6, 0, 0);
+    cover.castShadow = true;
+    coverPivot.add(cover);
+    pivot.add(coverPivot);
+
+    return pivot;
+  }
+
+  function buildLamp(){
+    var group = new THREE.Group();
+    group.position.set(2.0, 0.075, -0.5);
+    var metalMat = new THREE.MeshStandardMaterial({color:0x1c110a, roughness:0.45, metalness:0.65});
+
+    group.add(new THREE.Mesh(new THREE.CylinderGeometry(0.24,0.28,0.07,20), metalMat));
+
+    var arm1 = new THREE.Mesh(new THREE.CylinderGeometry(0.025,0.025,1.1,10), metalMat);
+    arm1.position.set(0,0.6,0); arm1.rotation.z = 0.28;
+    group.add(arm1);
+
+    var arm2 = new THREE.Mesh(new THREE.CylinderGeometry(0.022,0.022,0.75,10), metalMat);
+    arm2.position.set(-0.55,1.25,0); arm2.rotation.z = -0.55;
+    group.add(arm2);
+
+    var shade = new THREE.Mesh(new THREE.ConeGeometry(0.3,0.36,24,1,true), metalMat);
+    shade.position.set(-0.95,1.55,0); shade.rotation.x = Math.PI; shade.rotation.z = 0.75;
+    group.add(shade);
+
+    lampLight = new THREE.PointLight(0xffb366, 2.6, 9, 2);
+    lampLight.position.set(-0.95,1.42,0);
+    lampLight.castShadow = true;
+    lampLight.shadow.mapSize.set(1024,1024);
+    group.add(lampLight);
+
+    return group;
+  }
+
+  function buildGlobe(){
+    var group = new THREE.Group();
+    group.position.set(2.7,0,1.1);
+    var sphere = new THREE.Mesh(
+      new THREE.SphereGeometry(0.28,24,24),
+      new THREE.MeshStandardMaterial({map:createGlobeTexture(), roughness:0.6})
+    );
+    sphere.position.y = 0.46; sphere.rotation.z = 0.4; sphere.castShadow = true;
+    group.add(sphere);
+    var standMat = new THREE.MeshStandardMaterial({color:0x2b1810, roughness:0.6});
+    var ring = new THREE.Mesh(new THREE.TorusGeometry(0.3,0.018,8,24), standMat);
+    ring.rotation.x = Math.PI/2; ring.position.y = 0.46;
+    group.add(ring);
+    var stand = new THREE.Mesh(new THREE.CylinderGeometry(0.03,0.11,0.46,10), standMat);
+    stand.position.y = 0.23;
+    group.add(stand);
+    return group;
+  }
+
+  function buildBooks(){
+    var group = new THREE.Group();
+    group.position.set(-2.5,0,1.3);
+    var labels = ['SKILLS','DESIGN','DEV'];
+    var colors = [0x2b1810,0x3a2418,0x1c2b2b];
+    var y = 0.075;
+    labels.forEach(function(label,i){
+      var h = 0.13;
+      var side = new THREE.MeshStandardMaterial({color:colors[i], roughness:0.7});
+      var face = new THREE.MeshStandardMaterial({map:createBookTexture(label), roughness:0.6});
+      var book = new THREE.Mesh(new THREE.BoxGeometry(0.7,h,0.5), [side,side,side,side,face,side]);
+      book.position.set((Math.random()-0.5)*0.05, y, (Math.random()-0.5)*0.05);
+      book.rotation.y = (Math.random()-0.5)*0.08;
+      book.castShadow = true; book.receiveShadow = true;
+      group.add(book);
+      y += h + 0.005;
+    });
+    return group;
+  }
+
+  function buildMug(){
+    var group = new THREE.Group();
+    group.position.set(2.4,0.09,1.5);
+    var mat = new THREE.MeshStandardMaterial({color:0x1c1c1c, roughness:0.4});
+    var body = new THREE.Mesh(new THREE.CylinderGeometry(0.13,0.11,0.18,20), mat);
+    body.castShadow = true;
+    group.add(body);
+    var handle = new THREE.Mesh(new THREE.TorusGeometry(0.07,0.018,8,16,Math.PI*1.3), mat);
+    handle.position.set(0.14,0,0); handle.rotation.y = Math.PI/2;
+    group.add(handle);
+    return group;
+  }
+
+  function buildHourglass(){
+    var group = new THREE.Group();
+    group.position.set(-1.6,0.16,-0.9);
+    var glassMat = new THREE.MeshStandardMaterial({color:0xcfd8dc, roughness:0.15, metalness:0.1, transparent:true, opacity:0.35});
+    var frameMat = new THREE.MeshStandardMaterial({color:0x2b1810, roughness:0.6});
+    var topCone = new THREE.Mesh(new THREE.ConeGeometry(0.13,0.22,16), glassMat);
+    topCone.position.y = 0.24; topCone.rotation.x = Math.PI;
+    group.add(topCone);
+    var botCone = new THREE.Mesh(new THREE.ConeGeometry(0.13,0.22,16), glassMat);
+    botCone.position.y = 0.02;
+    group.add(botCone);
+    [0.02,0.46].forEach(function(y){
+      var disc = new THREE.Mesh(new THREE.CylinderGeometry(0.15,0.15,0.02,16), frameMat);
+      disc.position.y = y;
+      group.add(disc);
+    });
+    [[0.13,0],[-0.065,0.11],[-0.065,-0.11]].forEach(function(p){
+      var post = new THREE.Mesh(new THREE.CylinderGeometry(0.012,0.012,0.44,8), frameMat);
+      post.position.set(p[0],0.24,p[1]);
+      group.add(post);
+    });
+    return group;
+  }
+
+  function buildCameraProp(){
+    var group = new THREE.Group();
+    group.position.set(2.85,0.1,0.15);
+    group.rotation.y = -0.5;
+    var bodyMat = new THREE.MeshStandardMaterial({color:0x1c1c1c, roughness:0.5, metalness:0.3});
+    var body = new THREE.Mesh(new THREE.BoxGeometry(0.34,0.22,0.16), bodyMat);
+    body.castShadow = true;
+    group.add(body);
+    var lens = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.075,0.09,0.14,20),
+      new THREE.MeshStandardMaterial({color:0x333333, roughness:0.3, metalness:0.5})
+    );
+    lens.rotation.x = Math.PI/2; lens.position.set(0,0,0.15);
+    group.add(lens);
+    var knob = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.03,0.03,0.04,12),
+      new THREE.MeshStandardMaterial({color:0xc9a15c, roughness:0.4, metalness:0.6})
+    );
+    knob.rotation.x = Math.PI/2; knob.position.set(0.12,0.13,0);
+    group.add(knob);
+    return group;
+  }
+
+  function buildPlant(){
+    var group = new THREE.Group();
+    group.position.set(-2.9,0,-1.1);
+    var pot = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.16,0.13,0.22,16),
+      new THREE.MeshStandardMaterial({color:0x3a2418, roughness:0.7})
+    );
+    pot.position.y = 0.11; pot.castShadow = true;
+    group.add(pot);
+    var leafMat = new THREE.MeshStandardMaterial({color:0x2e4a2e, roughness:0.8});
+    for (var i=0;i<7;i++){
+      var leaf = new THREE.Mesh(new THREE.SphereGeometry(0.11+Math.random()*0.05,8,8), leafMat);
+      var ang = (i/7)*Math.PI*2;
+      leaf.position.set(Math.cos(ang)*0.09, 0.32+Math.random()*0.18, Math.sin(ang)*0.09);
+      leaf.scale.set(0.8,1.3,0.8);
+      group.add(leaf);
+    }
+    return group;
+  }
+
+  function buildNameplate(){
+    var group = new THREE.Group();
+    group.position.set(0.1,0.045,-1.15);
+    var dark = new THREE.MeshStandardMaterial({color:0x1c110a, roughness:0.5});
+    var face = new THREE.MeshStandardMaterial({map:createNameplateTexture(), roughness:0.4});
+    var plate = new THREE.Mesh(new THREE.BoxGeometry(0.9,0.09,0.05), [dark,dark,dark,dark,face,dark]);
+    plate.rotation.x = -0.25;
+    plate.castShadow = true;
+    group.add(plate);
+    return group;
+  }
+
+  function buildDeskLitter(){
+    var group = new THREE.Group();
+    var pen = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.012,0.012,0.5,8),
+      new THREE.MeshStandardMaterial({color:0x1c1c1c, roughness:0.3, metalness:0.4})
+    );
+    pen.position.set(-0.9,0.06,0.9); pen.rotation.z = Math.PI/2.3; pen.rotation.y = 0.3;
+    group.add(pen);
+    [0xd8c877,0xc98a6a].forEach(function(color,i){
+      var note = new THREE.Mesh(
+        new THREE.PlaneGeometry(0.22,0.22),
+        new THREE.MeshStandardMaterial({color:color, roughness:0.9, side:THREE.DoubleSide})
+      );
+      note.rotation.x = -Math.PI/2;
+      note.rotation.z = (Math.random()-0.5)*0.5;
+      note.position.set(-1.1+i*0.35, 0.078, 1.35);
+      group.add(note);
+    });
+    return group;
+  }
+
+  // ---------- scene lifecycle ----------
+  function initScene(){
+    clock = new THREE.Clock();
+    lookAtTarget = new THREE.Vector3(0,0.35,0);
+
+    scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x0b0a08);
+    scene.fog = new THREE.FogExp2(0x0b0a08, 0.045);
+
+    camera = new THREE.PerspectiveCamera(38, window.innerWidth/window.innerHeight, 0.1, 100);
+    camera.position.set(introCamPos.x, introCamPos.y, introCamPos.z);
+
+    renderer = new THREE.WebGLRenderer({antialias:true});
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.outputEncoding = THREE.sRGBEncoding;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.1;
+    document.getElementById('canvas-root').appendChild(renderer.domElement);
+
+    scene.add(new THREE.AmbientLight(0x2a2018, 0.7));
+    var rim = new THREE.DirectionalLight(0x8fa0ff, 0.12);
+    rim.position.set(-4,5,-3);
+    scene.add(rim);
+
+    scene.add(buildTable());
+    diaryPivot = buildDiary();
+    scene.add(diaryPivot);
+    scene.add(buildLamp());
+    scene.add(buildGlobe());
+    scene.add(buildBooks());
+    scene.add(buildMug());
+    scene.add(buildHourglass());
+    scene.add(buildCameraProp());
+    scene.add(buildPlant());
+    scene.add(buildNameplate());
+    scene.add(buildDeskLitter());
+
+    raycaster = new THREE.Raycaster();
+    mouse = new THREE.Vector2();
+
+    renderer.domElement.addEventListener('click', onCanvasClick);
+    renderer.domElement.addEventListener('mousemove', onCanvasMouseMove);
+    window.addEventListener('resize', onResize);
+  }
+
+  function onResize(){
+    camera.aspect = window.innerWidth/window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  }
+
+  function pickDiary(e){
+    var rect = renderer.domElement.getBoundingClientRect();
+    mouse.x = ((e.clientX-rect.left)/rect.width)*2-1;
+    mouse.y = -((e.clientY-rect.top)/rect.height)*2+1;
+    raycaster.setFromCamera(mouse, camera);
+    return raycaster.intersectObject(diaryPivot, true);
+  }
+
+  function onCanvasClick(e){
+    if (state.diaryState !== 'closed') return;
+    if (pickDiary(e).length > 0) openDiary(false);
+  }
+
+  function onCanvasMouseMove(e){
+    if (state.diaryState !== 'closed') { return; }
+    var isHover = pickDiary(e).length > 0;
+    if (isHover !== hovering){
+      hovering = isHover;
+      renderer.domElement.style.cursor = isHover ? 'pointer' : 'default';
+    }
+  }
+
+  function animate(){
+    requestAnimationFrame(animate);
+    var t = clock.getElapsedTime();
+    if (state.diaryState === 'closed'){
+      camera.position.x = introCamPos.x + Math.sin(t*0.15)*0.15;
+      camera.position.y = introCamPos.y + Math.sin(t*0.1)*0.08;
+    }
+    camera.lookAt(lookAtTarget);
+    renderer.render(scene, camera);
+  }
+
+  // ---------- open / close choreography ----------
+  function openDiary(force){
+    if (!force && state.diaryState !== 'closed') return;
+    state.diaryState = 'opening';
+    var chrome = document.querySelector('.intro-chrome');
+    var hint = document.getElementById('hint');
+    if (chrome) chrome.classList.add('fade-out');
+    if (hint) hint.classList.add('fade-out');
+
+    if (!scene){ finishOpen(); return; }
+
+    var tl = gsap.timeline({onComplete: finishOpen});
+    tl.to(camera.position, {x:diaryCamPos.x, y:diaryCamPos.y, z:diaryCamPos.z, duration:1.6, ease:'power3.inOut'}, 0);
+    tl.to(coverPivot.rotation, {z:1.95, duration:1.15, ease:'power2.out'}, 0.35);
+    tl.call(function(){ document.getElementById('canvas-root').classList.add('dimmed'); }, null, 0.7);
+    if (lampLight) tl.to(lampLight, {intensity:3.4, duration:0.9}, 0.7);
+  }
+
+  function finishOpen(){
+    state.diaryState = 'open';
+    state.activeChapter = 'about';
+    document.getElementById('diary-spread').classList.add('visible');
+    document.getElementById('chapter-dots').classList.add('visible');
+    document.getElementById('close-btn').classList.add('visible');
+    renderSpreadIntro();
+    updateDots();
+    updateUrl();
+  }
+
+  function closeDiary(){
+    if (state.diaryState !== 'open') return;
+    state.diaryState = 'closing';
+    document.getElementById('diary-spread').classList.remove('visible');
+    document.getElementById('chapter-dots').classList.remove('visible');
+    document.getElementById('close-btn').classList.remove('visible');
+    state.activeChapter = null;
+    state.activeProject = null;
+    updateUrl();
+
+    function restoreChrome(){
+      var chrome = document.querySelector('.intro-chrome');
+      var hint = document.getElementById('hint');
+      if (chrome) chrome.classList.remove('fade-out');
+      if (hint) hint.classList.remove('fade-out');
+    }
+
+    if (!scene){ state.diaryState = 'closed'; restoreChrome(); return; }
+
+    var tl = gsap.timeline({onComplete:function(){ state.diaryState = 'closed'; }});
+    tl.to(coverPivot.rotation, {z:0, duration:0.9, ease:'power2.inOut'}, 0);
+    tl.to(camera.position, {x:introCamPos.x, y:introCamPos.y, z:introCamPos.z, duration:1.3, ease:'power3.inOut'}, 0.25);
+    tl.call(function(){ document.getElementById('canvas-root').classList.remove('dimmed'); }, null, 0.2);
+    if (lampLight) tl.to(lampLight, {intensity:2.6, duration:0.8}, 0.2);
+    tl.call(restoreChrome, null, 0.6);
+  }
+
+  // ---------- DOM overlay rendering ----------
+  function renderSpreadIntro(){
+    var left = document.getElementById('page-left');
+    var right = document.getElementById('page-right');
+    left.innerHTML =
+      '<p class="eyebrow-mini">My Story</p>' +
+      '<p class="body-copy">I\'m a final-year Computer Science student at KTU, and for the last few years I\'ve been doing two things most people keep separate: writing production software, and running a small hardware business.</p>' +
+      '<p class="body-copy">By day I build full-stack systems, React frontends, Node and Python backends, AI pipelines, cloud infrastructure on AWS. On the side, I run RIMS Shop, selling, installing, and repairing speakers and audio systems, which means I\'ve spent about as much time with a soldering iron as with a keyboard.</p>' +
+      '<p class="body-copy">This diary is where I keep the record.</p>';
+    right.innerHTML = '<p class="eyebrow-mini">Chapters</p><ul class="chapter-list" id="chapter-list"></ul>';
+    renderChapterList();
+  }
+
+  function renderChapterList(){
+    var ul = document.getElementById('chapter-list');
+    if (!ul) return;
+    ul.innerHTML = CHAPTERS.map(function(ch){
+      return '<li data-chapter="'+ch.id+'" class="'+(state.activeChapter===ch.id?'active':'')+'" tabindex="0">'
+        + '<span class="num">'+ch.num+'</span><span>'+ch.title+'</span></li>';
+    }).join('');
+    ul.querySelectorAll('li').forEach(function(li){
+      li.addEventListener('click', function(){ goToChapter(li.getAttribute('data-chapter')); });
+      li.addEventListener('keydown', function(e){
+        if (e.key==='Enter' || e.key===' '){ e.preventDefault(); goToChapter(li.getAttribute('data-chapter')); }
+      });
+    });
+  }
+
+  function goToChapter(id){
+    state.activeChapter = id;
+    state.activeProject = null;
+    var left = document.getElementById('page-left');
+    var right = document.getElementById('page-right');
+    left.classList.add('transitioning');
+    right.classList.add('transitioning');
+    setTimeout(function(){
+      renderChapter(id);
+      left.classList.remove('transitioning');
+      right.classList.remove('transitioning');
+    }, 200);
+    updateDots();
+    updateUrl();
+  }
+
+  function renderChapter(id){
+    var left = document.getElementById('page-left');
+    var right = document.getElementById('page-right');
+    var meta = CHAPTERS.filter(function(c){ return c.id===id; })[0];
+    var label = '<p class="eyebrow-mini">'+meta.num+' — '+meta.title+'</p>';
+
+    if (id==='about'){
+      left.innerHTML = label +
+        '<p class="body-copy">I\'m a final-year Computer Science student at KTU, and for the last few years I\'ve been doing two things most people keep separate: writing production software, and running a small hardware business.</p>' +
+        '<p class="body-copy">By day I build full-stack systems, React frontends, Node and Python backends, AI pipelines, cloud infrastructure on AWS. On the side, I run RIMS Shop, selling, installing, and repairing speakers and audio systems.</p>';
+      right.innerHTML =
+        '<p class="body-copy">KTU\'s final year has meant balancing coursework, placement interviews, and shipping real projects at the same time, its own lesson in prioritization. The three projects in this diary aren\'t class assignments. They\'re things I built because I wanted them to exist, and then wanted them to actually work.</p>';
+    } else if (id==='skills'){
+      left.innerHTML = label + SKILLS.slice(0,3).map(skillRow).join('');
+      right.innerHTML = SKILLS.slice(3).map(skillRow).join('');
+    } else if (id==='projects'){
+      left.innerHTML = label + '<div id="project-list-left"></div>';
+      right.innerHTML = '<div id="project-list-right"></div>';
+      renderProjectList();
+    } else if (id==='experience'){
+      left.innerHTML = label + '<p class="body-copy"><strong>Final-year B.Tech, Computer Science, KTU</strong> — graduating [2026/2027].</p>';
+      right.innerHTML = '<p class="body-copy">One recent habit worth mentioning: I\'ve started running full production-style audits on my own projects before calling them done, the kind of scrutiny you\'d normally only get from a senior engineer\'s code review. It\'s slower than declaring victory early, and it\'s taught me more about what production-grade actually means than any tutorial has.</p>';
+    } else if (id==='contact'){
+      left.innerHTML = label + '<p class="body-copy">If you\'ve read this far, thank you. I\'m looking for software engineering roles where I can work across the stack, and I\'d like to talk about what I could build for your team.</p>';
+      right.innerHTML = '<p class="contact-links">' +
+        '<a href="mailto:your.email@example.com">your.email@example.com</a><br/>' +
+        '<a href="#">github.com/yourhandle</a><br/>' +
+        '<a href="#">linkedin.com/in/yourhandle</a></p>';
+    }
+  }
+
+  function skillRow(s){
+    return '<div class="skill-row"><span class="skill-cat">'+s.cat+'</span><span class="skill-items">'+s.items+'</span></div>';
+  }
+
+  function projectCardHtml(p){
+    return '<div class="project-card" data-project="'+p.id+'"><h3>'+p.title+'</h3>' +
+      '<p class="tagline">'+p.tagline+'</p><div>' +
+      p.tags.slice(0,3).map(function(t){ return '<span class="tag">'+t+'</span>'; }).join('') +
+      '</div></div>';
+  }
+
+  function renderProjectList(){
+    var left = document.getElementById('project-list-left');
+    var right = document.getElementById('project-list-right');
+    if (!left || !right) return;
+    left.innerHTML = projectCardHtml(PROJECTS[0]);
+    right.innerHTML = PROJECTS.slice(1).map(projectCardHtml).join('');
+    document.querySelectorAll('.project-card').forEach(function(card){
+      card.addEventListener('click', function(){ openProject(card.getAttribute('data-project')); });
+    });
+  }
+
+  function openProject(id){
+    var matches = PROJECTS.filter(function(x){ return x.id===id; });
+    if (!matches.length) return;
+    var p = matches[0];
+    state.activeProject = id;
+    var left = document.getElementById('page-left');
+    var right = document.getElementById('page-right');
+    left.innerHTML = '<p class="eyebrow-mini">03 — Projects</p>' +
+      '<h3 class="project-title">'+p.title+'</h3>' +
+      '<p class="tagline">'+p.tagline+'</p>' +
+      '<p class="body-copy">'+p.description+'</p>';
+    right.innerHTML = '<div>' + p.tags.map(function(t){ return '<span class="tag">'+t+'</span>'; }).join('') + '</div>' +
+      '<button class="back-link" id="back-to-projects">← All projects</button>';
+    var backBtn = document.getElementById('back-to-projects');
+    if (backBtn) backBtn.addEventListener('click', function(){ state.activeProject=null; renderChapter('projects'); });
+    updateUrl();
+  }
+
+  function updateDots(){
+    var container = document.getElementById('chapter-dots');
+    if (!container.getAttribute('data-built')){
+      container.innerHTML = CHAPTERS.map(function(c){
+        return '<button data-chapter="'+c.id+'" aria-label="'+c.title+'"></button>';
+      }).join('');
+      container.querySelectorAll('button').forEach(function(btn){
+        btn.addEventListener('click', function(){ goToChapter(btn.getAttribute('data-chapter')); });
+      });
+      container.setAttribute('data-built','1');
+    }
+    container.querySelectorAll('button').forEach(function(btn){
+      btn.classList.toggle('active', btn.getAttribute('data-chapter')===state.activeChapter);
+    });
+  }
+
+  function updateUrl(){
+    var params = new URLSearchParams();
+    if (state.activeChapter) params.set('chapter', state.activeChapter);
+    if (state.activeProject) params.set('project', state.activeProject);
+    var qs = params.toString();
+    try { history.replaceState(null,'', qs ? ('?'+qs) : location.pathname); } catch(e){}
+  }
+
+  // ---------- boot ----------
+  function supportsWebGL(){
+    try {
+      var c = document.createElement('canvas');
+      return !!(window.WebGLRenderingContext && (c.getContext('webgl') || c.getContext('experimental-webgl')));
+    } catch(e){ return false; }
+  }
+
+  function hideLoadingScreen(){
+    var fill = document.getElementById('loader-fill');
+    if (fill) fill.style.width = '100%';
+    setTimeout(function(){
+      var el = document.getElementById('loading-screen');
+      if (el) el.classList.add('hidden');
+    }, 350);
+  }
+
+  function fallbackNoWebGL(){
+    var root = document.getElementById('canvas-root');
+    if (root) root.style.display = 'none';
+    document.body.classList.add('no-webgl');
+    hideLoadingScreen();
+    openDiary(true);
+  }
+
+  function bindUI(){
+    var closeBtn = document.getElementById('close-btn');
+    if (closeBtn) closeBtn.addEventListener('click', closeDiary);
+    document.addEventListener('keydown', function(e){
+      if (e.key === 'Escape' && state.diaryState === 'open') closeDiary();
+    });
+  }
+
+  window.addEventListener('DOMContentLoaded', function(){
+    bindUI();
+    if (!supportsWebGL() || typeof THREE === 'undefined'){
+      fallbackNoWebGL();
+      return;
+    }
+    try {
+      initScene();
+      animate();
+      setTimeout(hideLoadingScreen, 500);
+    } catch(err){
+      console.error('Scene init failed, falling back to the flat layer', err);
+      scene = null;
+      fallbackNoWebGL();
+    }
+  });
+})();
+</script>
+</body>
+</html>

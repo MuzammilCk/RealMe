@@ -1,0 +1,46 @@
+flowchart TB
+    subgraph LayerA["LAYER A — THE WORLD  (R3F Canvas, fixed, always mounted)"]
+        direction TB
+        Table["Table"]
+        Diary["Diary\n(hinge pivot on spine)"]
+        Lamp["Lamp + PointLight"]
+        Props["Globe · Books · Mug ·\nHourglass · Camera · Plant · Nameplate"]
+        CamRig["CameraRig\n(all GSAP timelines live here)"]
+    end
+
+    subgraph LayerB["LAYER B — THE CONTENT  (DOM overlay, Tailwind + Motion, absolute on top)"]
+        direction TB
+        Nav["ChapterNav"]
+        About["About"]
+        Skills["Skills"]
+        Projects["Projects\n(AI Invoice Studio · WhatsApp Assistant · Echo)"]
+        Experience["Experience"]
+        Contact["Contact"]
+        Nav --> About
+        Nav --> Skills
+        Nav --> Projects
+        Nav --> Experience
+        Nav --> Contact
+    end
+
+    Store[["Zustand Store\ndiaryState · activeChapter ·\nactiveProject · deviceTier"]]
+
+    Diary -- "click → openDiary()" --> Store
+    Store -- "diaryState = open" --> Nav
+    Nav -- "goToChapter(id)" --> Store
+    Projects -- "openProject(id)" --> Store
+    Store -- "activeChapter changes" --> CamRig
+    CamRig -. "drives" .-> Diary
+    CamRig -. "drives" .-> Lamp
+
+    GPU["detect-gpu\n(runs once at boot)"] --> Store
+    URLp["URL query params\n?chapter=&project="] <-- "sync" --> Store
+
+    Store -- "tier 1 / no WebGL /\nprefers-reduced-motion" --> Fallback["Layer B only\n(no Canvas mounted —\nthis IS the Phase 2 safety-net build)"]
+
+    style LayerA fill:#2b1810,stroke:#c9a15c,color:#ede0c8
+    style LayerB fill:#0b0a08,stroke:#c9a15c,color:#ede0c8
+    style Store fill:#4a2f1c,stroke:#c9a15c,color:#ede0c8
+    style Fallback fill:#1c110a,stroke:#ff9d52,color:#ede0c8
+    style GPU fill:#0b0a08,stroke:#c9a15c,color:#ede0c8
+    style URLp fill:#0b0a08,stroke:#c9a15c,color:#ede0c8
