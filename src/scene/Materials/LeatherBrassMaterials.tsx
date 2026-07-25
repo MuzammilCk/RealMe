@@ -1,14 +1,13 @@
 import { useMemo } from 'react';
 import * as THREE from 'three';
-import { useTexture } from '@react-three/drei';
 
 /**
  * Leather Material - Warm, tactile leather for diary cover
  * ARCHITECTURE-v2 §2 Locked Palette: leather-900, leather-700, leather-500
  */
-export function LeatherMaterial({ color = '#2b1810', roughness = 0.6, metalness = 0.05, ...props }: JSX.IntrinsicElements['meshStandardMaterial']) {
-  // Base leather normal map - procedural or loaded
-  const normalMap = useTexture(() => {
+export function LeatherMaterial({ color = '#2b1810', roughness = 0.6, metalness = 0.05, ...props }: React.JSX.IntrinsicElements['meshStandardMaterial']) {
+  // Base leather normal map - procedural
+  const normalMap = useMemo(() => {
     const canvas = document.createElement('canvas');
     canvas.width = 512;
     canvas.height = 512;
@@ -48,8 +47,8 @@ export function BrassMaterial({
   metalness = 0.85,
   envMapIntensity = 1.2,
   ...props
-}: JSX.IntrinsicElements['meshStandardMaterial']) {
-  const normalMap = useTexture(() => {
+}: React.JSX.IntrinsicElements['meshStandardMaterial']) {
+  const normalMap = useMemo(() => {
     const canvas = document.createElement('canvas');
     canvas.width = 256;
     canvas.height = 256;
@@ -86,7 +85,7 @@ export function BrassMaterial({
 /**
  * Oxidized Brass Material - For aged/weathered brass elements
  */
-export function OxidizedBrassMaterial(props: JSX.IntrinsicElements['meshStandardMaterial']) {
+export function OxidizedBrassMaterial(props: React.JSX.IntrinsicElements['meshStandardMaterial']) {
   return (
     <BrassMaterial
       color="#8b7343"
@@ -101,7 +100,7 @@ export function OxidizedBrassMaterial(props: JSX.IntrinsicElements['meshStandard
 /**
  * Polished Brass Material - For shiny brass catches/gleam
  */
-export function PolishedBrassMaterial(props: JSX.IntrinsicElements['meshStandardMaterial']) {
+export function PolishedBrassMaterial(props: React.JSX.IntrinsicElements['meshStandardMaterial']) {
   return (
     <BrassMaterial
       color="#e8c56d"

@@ -1,5 +1,6 @@
-import { useTexture } from '@react-three/drei';
+import { useMemo } from 'react';
 import * as THREE from 'three';
+import { type MeshStandardMaterialProps } from './types';
 
 /**
  * Paper Material - Parchment-like paper for diary pages
@@ -10,8 +11,8 @@ export function PaperMaterial({
   roughness = 0.95,
   metalness = 0.0,
   ...props
-}: JSX.IntrinsicElements['meshStandardMaterial']) {
-  const normalMap = useTexture(() => {
+}: MeshStandardMaterialProps) {
+  const normalMap = useMemo(() => {
     const canvas = document.createElement('canvas');
     canvas.width = 512;
     canvas.height = 512;
@@ -39,7 +40,7 @@ export function PaperMaterial({
     return tex;
   }, []);
 
-  const aoMap = useTexture(() => {
+  const aoMap = useMemo(() => {
     const canvas = document.createElement('canvas');
     canvas.width = 512;
     canvas.height = 512;
@@ -75,7 +76,7 @@ export function PaperMaterial({
 /**
  * Aged Paper Material - For older diary pages with yellowing
  */
-export function AgedPaperMaterial(props: JSX.IntrinsicElements['meshStandardMaterial']) {
+export function AgedPaperMaterial(props: MeshStandardMaterialProps) {
   return (
     <PaperMaterial
       color="#ede0c8"
@@ -88,7 +89,7 @@ export function AgedPaperMaterial(props: JSX.IntrinsicElements['meshStandardMate
 /**
  * Writing Paper Material - Slightly smoother for ink receptivity
  */
-export function WritingPaperMaterial(props: JSX.IntrinsicElements['meshStandardMaterial']) {
+export function WritingPaperMaterial(props: MeshStandardMaterialProps) {
   return (
     <PaperMaterial
       color="#faf4eb"
@@ -108,7 +109,7 @@ export function InkMaterial({
   emissive = '#000000',
   emissiveIntensity = 0,
   ...props
-}: JSX.IntrinsicElements['meshStandardMaterial']) {
+}: MeshStandardMaterialProps) {
   return (
     <meshStandardMaterial
       color={color}

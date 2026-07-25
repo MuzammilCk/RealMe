@@ -26,3 +26,6 @@ export interface WoodMaterialProps {
   metalness?: number;
   normalScale?: [number, number];
 }
+
+// Re-export MeshStandardMaterialProps from three
+export type MeshStandardMaterialProps = import('three').MeshStandardMaterialProps;

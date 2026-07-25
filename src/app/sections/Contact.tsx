@@ -1,7 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useThree } from '@react-three/fiber';
-import * as THREE from 'three';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { usePortfolioStore } from '../../store/usePortfolioStore';
@@ -226,7 +224,7 @@ export function Contact() {
           transition={{ delay: 0.2 }}
         >
           {/* Left: Inkwell Visual */}
-          <div
+          <motion.div
             className="inkwell-visual"
             ref={inkwellRef}
             onClick={handleInkwellClick}
@@ -401,7 +399,7 @@ export function Contact() {
                 </motion.div>
               )}
             </AnimatePresence>
-          </div>
+          </motion.div>
 
           {/* Right: Form */}
           <motion.form

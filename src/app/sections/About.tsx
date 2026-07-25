@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { motion, useInView } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { useThree, useFrame } from '@react-three/fiber';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -17,7 +17,7 @@ gsap.registerPlugin(ScrollTrigger);
  */
 export function About() {
   const sectionRef = useRef<HTMLDivElement>(null);
-  const { progress, section: currentSection, getSectionProgress } = useScroll();
+  const { section: currentSection, getSectionProgress } = useScroll();
   const { diaryState, threeDEnabled } = usePortfolioStore();
   const { camera } = useThree();
   const leftPageRef = useRef<HTMLDivElement>(null);

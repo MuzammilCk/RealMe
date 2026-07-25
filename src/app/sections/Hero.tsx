@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
-import { useThree } from '@react-three/fiber';
+import { useThree, useFrame } from '@react-three/fiber';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { usePortfolioStore } from '../../store/usePortfolioStore';
@@ -94,11 +94,14 @@ export function Hero({ onScrollHint }: HeroProps) {
       ease: 'power3.out',
     }, 1.4);
 
-    return () => tl.kill();
+    return () => {
+      tl.kill();
+      document.body.style.overflow = 'auto';
+    };
   }, [threeDEnabled, camera]);
 
   // Scroll-driven camera parallax (when diary closed)
-  useFrame((_, delta) => {
+  useFrame((_) => {
     if (!threeDEnabled || diaryState !== 'closed') return;
 
     // Gentle orbital drift

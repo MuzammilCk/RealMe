@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import * as THREE from 'three';
-import { useTexture } from '@react-three/drei';
+import { type MeshStandardMaterialProps } from './types';
 
 /**
  * Wood Material - Warm walnut for desk, furniture
@@ -11,8 +11,8 @@ export function WoodMaterial({
   roughness = 0.55,
   metalness = 0.04,
   ...props
-}: JSX.IntrinsicElements['meshStandardMaterial']) {
-  const map = useTexture(() => {
+}: MeshStandardMaterialProps) {
+  const map = useMemo(() => {
     const canvas = document.createElement('canvas');
     canvas.width = 1024;
     canvas.height = 1024;
@@ -65,7 +65,7 @@ export function WoodMaterial({
     return tex;
   }, [color]);
 
-  const normalMap = useTexture(() => {
+  const normalMap = useMemo(() => {
     const canvas = document.createElement('canvas');
     canvas.width = 512;
     canvas.height = 512;
@@ -90,7 +90,7 @@ export function WoodMaterial({
     return tex;
   }, []);
 
-  const aoMap = useTexture(() => {
+  const aoMap = useMemo(() => {
     const canvas = document.createElement('canvas');
     canvas.width = 512;
     canvas.height = 512;
@@ -126,7 +126,7 @@ export function WoodMaterial({
 /**
  * Dark Walnut Material - For table legs, darker accents
  */
-export function DarkWalnutMaterial(props: JSX.IntrinsicElements['meshStandardMaterial']) {
+export function DarkWalnutMaterial(props: MeshStandardMaterialProps) {
   return (
     <WoodMaterial
       color="#2b1810"
@@ -140,7 +140,7 @@ export function DarkWalnutMaterial(props: JSX.IntrinsicElements['meshStandardMat
 /**
  * Light Walnut Material - For highlights, worn edges
  */
-export function LightWalnutMaterial(props: JSX.IntrinsicElements['meshStandardMaterial']) {
+export function LightWalnutMaterial(props: MeshStandardMaterialProps) {
   return (
     <WoodMaterial
       color="#8b6914"

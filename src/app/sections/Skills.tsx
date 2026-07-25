@@ -18,8 +18,8 @@ gsap.registerPlugin(ScrollTrigger);
  */
 export function Skills() {
   const sectionRef = useRef<HTMLDivElement>(null);
-  const { progress, section: currentSection, getSectionProgress } = useScroll();
-  const { diaryState, threeDEnabled, deviceTier, reducedMotion } = usePortfolioStore();
+  const { section: currentSection, getSectionProgress } = useScroll();
+  const { diaryState, threeDEnabled, reducedMotion } = usePortfolioStore();
   const { camera } = useThree();
   const { brassClick, hoverGlow } = useAudio();
 
