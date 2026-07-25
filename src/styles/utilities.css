@@ -1,0 +1,535 @@
+/* ==========================================================================
+   UTILITY CLASSES — Helper classes for common patterns
+   "The Diary of Me" v2 Premium 3D Portfolio
+   ========================================================================== */
+
+/* ----------------------------------------------------------------------------
+   LAYOUT UTILITIES
+   --------------------------------------------------------------------------- */
+
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.flex-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.flex-col-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.grid-auto-fit {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--space-6);
+}
+
+.grid-auto-fill {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: var(--space-6);
+}
+
+/* ----------------------------------------------------------------------------
+   SPACING UTILITIES
+   --------------------------------------------------------------------------- */
+
+.gap-1 { gap: var(--space-1); }
+.gap-2 { gap: var(--space-2); }
+.gap-3 { gap: var(--space-3); }
+.gap-4 { gap: var(--space-4); }
+.gap-5 { gap: var(--space-5); }
+.gap-6 { gap: var(--space-6); }
+.gap-8 { gap: var(--space-8); }
+.gap-10 { gap: var(--space-10); }
+.gap-12 { gap: var(--space-12); }
+
+.p-1 { padding: var(--space-1); }
+.p-2 { padding: var(--space-2); }
+.p-3 { padding: var(--space-3); }
+.p-4 { padding: var(--space-4); }
+.p-5 { padding: var(--space-5); }
+.p-6 { padding: var(--space-6); }
+.p-8 { padding: var(--space-8); }
+.p-10 { padding: var(--space-10); }
+.p-12 { padding: var(--space-12); }
+
+.px-2 { padding-inline: var(--space-2); }
+.px-3 { padding-inline: var(--space-3); }
+.px-4 { padding-inline: var(--space-4); }
+.px-5 { padding-inline: var(--space-5); }
+.px-6 { padding-inline: var(--space-6); }
+.px-8 { padding-inline: var(--space-8); }
+
+.py-1 { padding-block: var(--space-1); }
+.py-2 { padding-block: var(--space-2); }
+.py-3 { padding-block: var(--space-3); }
+.py-4 { padding-block: var(--space-4); }
+.py-5 { padding-block: var(--space-5); }
+.py-6 { padding-block: var(--space-6); }
+.py-8 { padding-block: var(--space-8); }
+.py-10 { padding-block: var(--space-10); }
+.py-12 { padding-block: var(--space-12); }
+.py-16 { padding-block: var(--space-16); }
+
+.mx-auto { margin-inline: auto; }
+.my-auto { margin-block: auto; }
+
+.mb-2 { margin-bottom: var(--space-2); }
+.mb-3 { margin-bottom: var(--space-3); }
+.mb-4 { margin-bottom: var(--space-4); }
+.mb-6 { margin-bottom: var(--space-6); }
+.mb-8 { margin-bottom: var(--space-8); }
+.mb-10 { margin-bottom: var(--space-10); }
+.mb-12 { margin-bottom: var(--space-12); }
+.mb-16 { margin-bottom: var(--space-16); }
+
+.mt-2 { margin-top: var(--space-2); }
+.mt-3 { margin-top: var(--space-3); }
+.mt-4 { margin-top: var(--space-4); }
+.mt-6 { margin-top: var(--space-6); }
+.mt-8 { margin-top: var(--space-8); }
+.mt-10 { margin-top: var(--space-10); }
+.mt-12 { margin-top: var(--space-12); }
+.mt-16 { margin-top: var(--space-16); }
+
+/* ----------------------------------------------------------------------------
+   SIZING UTILITIES
+   --------------------------------------------------------------------------- */
+
+.w-full { width: 100%; }
+.h-full { height: 100%; }
+.min-h-screen { min-height: 100vh; }
+.min-h-dvh { min-height: 100dvh; }
+
+/* ----------------------------------------------------------------------------
+   OVERFLOW UTILITIES
+   --------------------------------------------------------------------------- */
+
+.overflow-hidden { overflow: hidden; }
+.overflow-auto { overflow: auto; }
+.overflow-x-hidden { overflow-x: hidden; }
+.overflow-y-auto { overflow-y: auto; }
+
+.truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ----------------------------------------------------------------------------
+   POSITION UTILITIES
+   --------------------------------------------------------------------------- */
+
+.relative { position: relative; }
+.absolute { position: absolute; }
+.fixed { position: fixed; }
+.sticky { position: sticky; }
+
+.inset-0 { inset: 0; }
+.top-0 { top: 0; }
+.bottom-0 { bottom: 0; }
+.left-0 { left: 0; }
+.right-0 { right: 0; }
+
+/* ----------------------------------------------------------------------------
+   Z-INDEX UTILITIES
+   --------------------------------------------------------------------------- */
+
+.z-base { z-index: var(--z-base); }
+.z-dropdown { z-index: var(--z-dropdown); }
+.z-sticky { z-index: var(--z-sticky); }
+.z-fixed { z-index: var(--z-fixed); }
+.z-modal-backdrop { z-index: var(--z-modal-backdrop); }
+.z-modal { z-index: var(--z-modal); }
+.z-popover { z-index: var(--z-popover); }
+.z-tooltip { z-index: var(--z-tooltip); }
+.z-toast { z-index: var(--z-toast); }
+.z-max { z-index: var(--z-max); }
+
+/* ----------------------------------------------------------------------------
+   TRANSITION UTILITIES
+   --------------------------------------------------------------------------- */
+
+.transition-fast {
+  transition: all var(--duration-fast) var(--ease-smooth);
+}
+
+.transition-base {
+  transition: all var(--duration-base) var(--ease-smooth);
+}
+
+.transition-slow {
+  transition: all var(--duration-slow) var(--ease-smooth);
+}
+
+.transition-colors-fast {
+  transition: color var(--duration-fast) var(--ease-smooth),
+              background-color var(--duration-fast) var(--ease-smooth),
+              border-color var(--duration-fast) var(--ease-smooth);
+}
+
+.transition-transform-fast {
+  transition: transform var(--duration-fast) var(--ease-spring),
+              opacity var(--duration-fast) var(--ease-smooth);
+}
+
+.transition-transform-base {
+  transition: transform var(--duration-base) var(--ease-spring),
+              opacity var(--duration-base) var(--ease-smooth);
+}
+
+/* ----------------------------------------------------------------------------
+   INTERACTION UTILITIES
+   --------------------------------------------------------------------------- */
+
+.hover-lift {
+  transition: transform var(--duration-fast) var(--ease-spring),
+              box-shadow var(--duration-fast) var(--ease-smooth);
+}
+
+.hover-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-3);
+}
+
+.hover-scale {
+  transition: transform var(--duration-instant) var(--ease-sharp);
+}
+
+.hover-scale:hover {
+  transform: scale(1.02);
+}
+
+.hover-scale:active {
+  transform: scale(0.98);
+}
+
+.hover-glow-ember {
+  transition: box-shadow var(--duration-base) var(--ease-smooth);
+}
+
+.hover-glow-ember:hover {
+  box-shadow: var(--shadow-glow-ember);
+}
+
+.hover-glow-mystery {
+  transition: box-shadow var(--duration-base) var(--ease-smooth);
+}
+
+.hover-glow-mystery:hover {
+  box-shadow: var(--shadow-glow-mystery);
+}
+
+.hover-glow-teal {
+  transition: box-shadow var(--duration-base) var(--ease-smooth);
+}
+
+.hover-glow-teal:hover {
+  box-shadow: var(--shadow-glow-teal);
+}
+
+.press-scale {
+  transition: transform var(--duration-instant) var(--ease-sharp);
+}
+
+.press-scale:active {
+  transform: scale(0.96);
+}
+
+/* ----------------------------------------------------------------------------
+   GLASS MORPHISM
+   --------------------------------------------------------------------------- */
+
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+}
+
+.glass-strong {
+  background: rgba(17, 17, 20, 0.85);
+  backdrop-filter: blur(var(--glass-blur-strong));
+  -webkit-backdrop-filter: blur(var(--glass-blur-strong));
+  border: 1px solid var(--border-default);
+}
+
+/* ----------------------------------------------------------------------------
+   TEXT UTILITIES
+   --------------------------------------------------------------------------- */
+
+.text-balance {
+  text-wrap: balance;
+}
+
+.text-pretty {
+  text-wrap: pretty;
+}
+
+.underline-accent {
+  position: relative;
+}
+
+.underline-accent::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, var(--brass-700), var(--ember-400));
+  border-radius: 1px;
+}
+
+/* ----------------------------------------------------------------------------
+   DIVIDER / RULE
+   --------------------------------------------------------------------------- */
+
+.divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border-subtle), transparent);
+  border: none;
+}
+
+.divider-brass {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--brass-700), transparent);
+  border: none;
+}
+
+.divider-ember {
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--ember-400), transparent);
+  border: none;
+  border-radius: 1px;
+}
+
+/* ----------------------------------------------------------------------------
+   CARD BASE
+   --------------------------------------------------------------------------- */
+
+.card-base {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-2);
+  transition: box-shadow var(--duration-base) var(--ease-smooth),
+              border-color var(--duration-base) var(--ease-smooth),
+              transform var(--duration-fast) var(--ease-spring);
+}
+
+.card-base:hover {
+  border-color: var(--border-default);
+  box-shadow: var(--shadow-3);
+}
+
+.card-elevated {
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-3);
+}
+
+.card-glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-2);
+}
+
+/* ----------------------------------------------------------------------------
+   BUTTON BASE (unstyled, for composition)
+   --------------------------------------------------------------------------- */
+
+.btn-base {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  font-family: var(--font-caption);
+  font-weight: 500;
+  font-size: var(--text-sm);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  padding: var(--space-3) var(--space-6);
+  border-radius: var(--radius-md);
+  transition: all var(--duration-fast) var(--ease-smooth);
+  white-space: nowrap;
+  cursor: pointer;
+  border: none;
+  outline: none;
+}
+
+.btn-base:focus-visible {
+  outline: none;
+  ring: 3px solid var(--border-glow);
+  ring-offset: 2px;
+  ring-offset-color: var(--bg-canvas);
+}
+
+.btn-base:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* ----------------------------------------------------------------------------
+   INPUT BASE
+   --------------------------------------------------------------------------- */
+
+.input-base {
+  width: 100%;
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+  padding: var(--space-3) var(--space-4);
+  background: var(--bg-input);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  transition: all var(--duration-fast) var(--ease-smooth);
+}
+
+.input-base::placeholder {
+  color: var(--text-muted);
+}
+
+.input-base:hover {
+  border-color: var(--border-default);
+}
+
+.input-base:focus {
+  border-color: var(--border-strong);
+  box-shadow: 0 0 0 3px var(--brass-700 / 0.2);
+  outline: none;
+}
+
+.input-base:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ----------------------------------------------------------------------------
+   LABEL BASE
+   --------------------------------------------------------------------------- */
+
+.label-base {
+  display: block;
+  font-family: var(--font-caption);
+  font-weight: 500;
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  margin-bottom: var(--space-2);
+}
+
+/* ----------------------------------------------------------------------------
+   SCROLL INDICATOR (ink bar style)
+   --------------------------------------------------------------------------- */
+
+.scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--brass-700), var(--ember-400), var(--mystery-400));
+  background-size: 200% 100%;
+  animation: shimmer 3s linear infinite;
+  z-index: var(--z-fixed);
+  transform-origin: left;
+  transform: scaleX(0);
+  pointer-events: none;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* ----------------------------------------------------------------------------
+   SECTION DIVIDER (decorative)
+   --------------------------------------------------------------------------- */
+
+.section-divider {
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+  color: var(--text-muted);
+}
+
+.section-divider::before,
+.section-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border-subtle), transparent);
+}
+
+.section-divider-brass::before,
+.section-divider-brass::after {
+  background: linear-gradient(90deg, transparent, var(--brass-700), transparent);
+}
+
+/* ----------------------------------------------------------------------------
+   VIGNETTE OVERLAY (for hero sections)
+   --------------------------------------------------------------------------- */
+
+.vignette-overlay {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, transparent 40%, var(--void-950) 100%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.vignette-overlay-warm {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, transparent 30%, rgba(10, 6, 2, 0.9) 100%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ----------------------------------------------------------------------------
+   NOISE TEXTURE OVERLAY
+   --------------------------------------------------------------------------- */
+
+.noise-overlay {
+  position: absolute;
+  inset: 0;
+  opacity: var(--noise-opacity);
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-size: var(--noise-scale);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ----------------------------------------------------------------------------
+   PRINT UTILITIES
+   --------------------------------------------------------------------------- */
+
+@media print {
+  .hide-print { display: none !important; }
+  .show-print { display: block !important; }
+
+  .no-break { break-inside: avoid; }
+  .break-before { break-before: always; }
+  .break-after { break-after: always; }
+}

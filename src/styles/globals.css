@@ -1,0 +1,407 @@
+/* ==========================================================================
+   GLOBAL STYLES — Reset, Base, Font-Face
+   "The Diary of Me" v2 Premium 3D Portfolio
+   ========================================================================== */
+
+/* ----------------------------------------------------------------------------
+   CSS RESET — Modern, minimal, opinionated
+   --------------------------------------------------------------------------- */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+  -moz-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  min-height: 100vh;
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  line-height: var(--leading-relaxed);
+  color: var(--text-primary);
+  background-color: var(--bg-canvas);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* ----------------------------------------------------------------------------
+   FONT FACE DECLARATIONS
+   Fonts are delivered via @fontsource packages (imported in main.tsx), which
+   ship the woff2 files with font-display: swap. No hand-placed binaries in
+   /public/fonts/ are needed. See ARCHITECTURE-v2.md §3 for the locked scale.
+   --------------------------------------------------------------------------- */
+
+/* ----------------------------------------------------------------------------
+   TYPOGRAPHY UTILITIES — Semantic text styles
+   --------------------------------------------------------------------------- */
+
+.text-display {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: var(--text-5xl);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-tight);
+}
+
+.text-display-sm {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: var(--text-4xl);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-tight);
+}
+
+.text-heading {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: var(--text-3xl);
+  line-height: var(--leading-snug);
+  letter-spacing: var(--tracking-tight);
+}
+
+.text-heading-sm {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: var(--text-2xl);
+  line-height: var(--leading-snug);
+  letter-spacing: var(--tracking-tight);
+}
+
+.text-eyebrow {
+  font-family: var(--font-eyebrow);
+  font-weight: 400;
+  font-size: var(--text-sm);
+  line-height: var(--leading-normal);
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
+}
+
+.text-body {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: var(--text-base);
+  line-height: var(--leading-relaxed);
+  letter-spacing: var(--tracking-normal);
+}
+
+.text-body-lg {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: var(--text-lg);
+  line-height: var(--leading-relaxed);
+  letter-spacing: var(--tracking-normal);
+}
+
+.text-body-sm {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: var(--text-sm);
+  line-height: var(--leading-normal);
+  letter-spacing: var(--tracking-normal);
+}
+
+.text-caption {
+  font-family: var(--font-caption);
+  font-weight: 400;
+  font-size: var(--text-xs);
+  line-height: var(--leading-normal);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+}
+
+.text-caption-med {
+  font-family: var(--font-caption);
+  font-weight: 500;
+  font-size: var(--text-xs);
+  line-height: var(--leading-normal);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+}
+
+.text-mono {
+  font-family: var(--font-mono);
+  font-weight: 400;
+  font-size: var(--text-sm);
+  line-height: var(--leading-normal);
+  letter-spacing: var(--tracking-normal);
+}
+
+/* ----------------------------------------------------------------------------
+   COLOR UTILITIES — Semantic text colors
+   --------------------------------------------------------------------------- */
+
+.text-primary   { color: var(--text-primary); }
+.text-secondary { color: var(--text-secondary); }
+.text-muted     { color: var(--text-muted); }
+.text-inverse   { color: var(--text-inverse); }
+.text-accent    { color: var(--text-accent); }
+.text-mystery   { color: var(--text-mystery); }
+.text-teal      { color: var(--text-teal); }
+.text-ember     { color: var(--ember-400); }
+.text-brass     { color: var(--brass-500); }
+
+/* ----------------------------------------------------------------------------
+   BACKGROUND UTILITIES
+   --------------------------------------------------------------------------- */
+
+.bg-scene    { background-color: var(--bg-scene); }
+.bg-canvas   { background-color: var(--bg-canvas); }
+.bg-card     { background-color: var(--bg-card); }
+.bg-input    { background-color: var(--bg-input); }
+.bg-paper    { background-color: var(--bg-paper); }
+
+/* ----------------------------------------------------------------------------
+   BORDER UTILITIES
+   --------------------------------------------------------------------------- */
+
+.border-subtle  { border-color: var(--border-subtle); }
+.border-default { border-color: var(--border-default); }
+.border-strong  { border-color: var(--border-strong); }
+.border-glow    { border-color: var(--border-glow); }
+
+/* ----------------------------------------------------------------------------
+   SHADOW UTILITIES
+   --------------------------------------------------------------------------- */
+
+.shadow-1 { box-shadow: var(--shadow-1); }
+.shadow-2 { box-shadow: var(--shadow-2); }
+.shadow-3 { box-shadow: var(--shadow-3); }
+.shadow-4 { box-shadow: var(--shadow-4); }
+
+.shadow-glow-ember   { box-shadow: var(--shadow-glow-ember); }
+.shadow-glow-mystery { box-shadow: var(--shadow-glow-mystery); }
+.shadow-glow-teal    { box-shadow: var(--shadow-glow-teal); }
+.shadow-glow-brass   { box-shadow: var(--shadow-glow-brass); }
+
+/* ----------------------------------------------------------------------------
+   FOCUS VISIBLE — Accessible focus styles
+   --------------------------------------------------------------------------- */
+
+:focus-visible {
+  outline: none;
+  ring: 3px solid var(--border-glow);
+  ring-offset: 2px;
+  ring-offset-color: var(--bg-canvas);
+}
+
+/* ----------------------------------------------------------------------------
+   SCROLLBAR — Themed
+   --------------------------------------------------------------------------- */
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--void-900);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--brass-900);
+  border-radius: 4px;
+  border: 2px solid var(--void-900);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--brass-700);
+}
+::-webkit-scrollbar-corner {
+  background: var(--void-900);
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--brass-900) var(--void-900);
+}
+
+/* ----------------------------------------------------------------------------
+   SELECTION — Themed text selection
+   --------------------------------------------------------------------------- */
+
+::selection {
+  background-color: var(--ember-400 / 0.3);
+  color: var(--text-inverse);
+}
+
+/* ----------------------------------------------------------------------------
+   REDUCED MOTION — Already handled in design-tokens.css
+   --------------------------------------------------------------------------- */
+
+/* ----------------------------------------------------------------------------
+   CONTAINER UTILITIES
+   --------------------------------------------------------------------------- */
+
+.container-prose   { max-width: var(--container-prose); margin-inline: auto; }
+.container-content { max-width: var(--container-content); margin-inline: auto; }
+.container-wide    { max-width: var(--container-wide); margin-inline: auto; }
+.container-full    { width: var(--container-full); }
+
+/* ----------------------------------------------------------------------------
+   IMAGE / MEDIA BASE
+   --------------------------------------------------------------------------- */
+
+img, video, canvas, svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+/* ----------------------------------------------------------------------------
+   ANCHOR BASE
+   --------------------------------------------------------------------------- */
+
+a {
+  color: inherit;
+  text-decoration: none;
+  transition: color var(--duration-fast) var(--ease-smooth);
+}
+
+a:hover {
+  color: var(--text-accent);
+}
+
+/* ----------------------------------------------------------------------------
+   BUTTON RESET
+   --------------------------------------------------------------------------- */
+
+button {
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+/* ----------------------------------------------------------------------------
+   INPUT RESET
+   --------------------------------------------------------------------------- */
+
+input, textarea, select {
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  outline: none;
+}
+
+/* ----------------------------------------------------------------------------
+   ACCESSIBILITY HELPERS
+   --------------------------------------------------------------------------- */
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: var(--space-3) var(--space-6);
+  background: var(--brass-700);
+  color: var(--text-inverse);
+  font-family: var(--font-caption);
+  font-weight: 500;
+  border-radius: var(--radius-md);
+  z-index: var(--z-toast);
+  transition: top var(--duration-fast) var(--ease-smooth);
+}
+
+.skip-link:focus {
+  top: var(--space-4);
+}
+
+/* ----------------------------------------------------------------------------
+   ANIMATION UTILITIES (CSS-based, for simple cases)
+   --------------------------------------------------------------------------- */
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slide-down {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: var(--shadow-glow-ember); }
+  50% { box-shadow: 0 0 30px -2px var(--glow-ember), 0 0 60px -4px var(--glow-ember / 0.6); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.animate-fade-in      { animation: fade-in var(--duration-base) var(--ease-smooth) forwards; }
+.animate-slide-up    { animation: slide-up var(--duration-base) var(--ease-spring) forwards; }
+.animate-slide-down  { animation: slide-down var(--duration-base) var(--ease-spring) forwards; }
+.animate-scale-in    { animation: scale-in var(--duration-fast) var(--ease-smooth) forwards; }
+.animate-glow-pulse  { animation: glow-pulse 2s var(--ease-smooth) infinite; }
+
+/* Stagger delays for CSS-only stagger */
+.stagger-1  { animation-delay: calc(var(--stagger-micro) * 1); }
+.stagger-2  { animation-delay: calc(var(--stagger-micro) * 2); }
+.stagger-3  { animation-delay: calc(var(--stagger-micro) * 3); }
+.stagger-4  { animation-delay: calc(var(--stagger-micro) * 4); }
+.stagger-5  { animation-delay: calc(var(--stagger-micro) * 5); }
+.stagger-6  { animation-delay: calc(var(--stagger-micro) * 6); }
+.stagger-7  { animation-delay: calc(var(--stagger-micro) * 7); }
+.stagger-8  { animation-delay: calc(var(--stagger-micro) * 8); }
+
+/* Section stagger delays */
+.section-stagger-1 { animation-delay: calc(var(--stagger-section) * 1); }
+.section-stagger-2 { animation-delay: calc(var(--stagger-section) * 2); }
+.section-stagger-3 { animation-delay: calc(var(--stagger-section) * 3); }
+.section-stagger-4 { animation-delay: calc(var(--stagger-section) * 4); }
+.section-stagger-5 { animation-delay: calc(var(--stagger-section) * 5); }
+
+/* ----------------------------------------------------------------------------
+   PRINT STYLES
+   --------------------------------------------------------------------------- */
+
+@media print {
+  .no-print { display: none !important; }
+  .print-only { display: block !important; }
+
+  body {
+    background: white !important;
+    color: black !important;
+  }
+
+  .canvas-root,
+  [data-r3f-canvas] {
+    display: none !important;
+  }
+}

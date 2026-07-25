@@ -6,6 +6,7 @@ import Overlay from './content/Overlay';
 import LoadingScreen from './content/LoadingScreen';
 import CanvasErrorBoundary from './scene/CanvasErrorBoundary';
 import { useDiaryControls } from './content/useDiaryControls';
+import AppLayout from './app/layout';
 
 // Layer A is code-split: three.js / R3F only download when 3D is enabled, so
 // the tier-1 / no-WebGL / reduced-motion fallback (Layer B only) stays light.
@@ -94,6 +95,7 @@ export default function App() {
           </Suspense>
         </CanvasErrorBoundary>
       )}
+      <AppLayout />
       <Overlay />
       <LoadingScreen done={!loading} />
     </>

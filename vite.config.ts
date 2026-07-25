@@ -5,6 +5,15 @@ import tailwindcss from '@tailwindcss/vite';
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), tailwindcss()],
+  resolve: {
+    alias: {
+      '@': '/src',
+      '@ui': '/src/ui',
+      '@scene': '/src/scene',
+      '@lib': '/src/lib',
+      '@styles': '/src/styles',
+    },
+  },
   build: {
     target: 'es2020',
     rollupOptions: {
@@ -15,9 +24,22 @@ export default defineConfig({
           three: ['three'],
           r3f: ['@react-three/fiber', '@react-three/drei'],
           gsap: ['gsap', '@gsap/react'],
-          motion: ['motion'],
+          motion: ['framer-motion'],
         },
       },
     },
   },
+  // Optimize deps for faster dev server startup
+  optimizeDeps: {
+    include: [
+      'three',
+      '@react-three/fiber',
+      '@react-three/drei',
+      'gsap',
+      '@gsap/react',
+      'framer-motion',
+    ],
+  },
+  // GLSL shader support via import
+  assetsInclude: ['**/*.glsl', '**/*.vs', '**/*.fs', '**/*.vert', '**/*.frag'],
 });
