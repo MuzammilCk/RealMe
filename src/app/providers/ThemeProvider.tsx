@@ -7,6 +7,10 @@ interface ThemeContextValue {
   setMode: (mode: ThemeMode) => void;
   resolvedTheme: 'warm' | 'cool';
   toggleTheme: () => void;
+  reducedMotion: boolean;
+  highContrast: boolean;
+  colorBlindSafe: boolean;
+  toggleColorBlindSafe: () => void;
 }
 
 const ThemeContext = createContext<ThemeContextValue | null>(null);
@@ -14,23 +18,58 @@ const ThemeContext = createContext<ThemeContextValue | null>(null);
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [mode, setModeState] = useState<ThemeMode>('auto');
   const [resolvedTheme, setResolvedTheme] = useState<'warm' | 'cool'>('warm');
+  const [reducedMotion, setReducedMotion] = useState(false);
+  const [highContrast, setHighContrast] = useState(false);
+  const [colorBlindSafe, setColorBlindSafe] = useState(false);
 
-  // Detect system preference
+  // Detect system preferences
   useEffect(() => {
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    const handleChange = () => {
+    const colorSchemeQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const contrastQuery = window.matchMedia('(prefers-contrast: more)');
+
+    const handleColorSchemeChange = () => {
       if (mode === 'auto') {
-        const isDark = mediaQuery.matches;
+        const isDark = colorSchemeQuery.matches;
         setResolvedTheme(isDark ? 'warm' : 'cool');
         applyTheme(isDark ? 'warm' : 'cool');
       }
     };
 
-    // Initial check
-    handleChange();
-    mediaQuery.addEventListener('change', handleChange);
-    return () => mediaQuery.removeEventListener('change', handleChange);
+    const handleReducedMotionChange = () => {
+      setReducedMotion(reducedMotionQuery.matches);
+    };
+
+    const handleContrastChange = () => {
+      setHighContrast(contrastQuery.matches);
+    };
+
+    // Initial checks
+    handleColorSchemeChange();
+    handleReducedMotionChange();
+    handleContrastChange();
+
+    // Add listeners
+    colorSchemeQuery.addEventListener('change', handleColorSchemeChange);
+    reducedMotionQuery.addEventListener('change', handleReducedMotionChange);
+    contrastQuery.addEventListener('change', handleContrastChange);
+
+    return () => {
+      colorSchemeQuery.removeEventListener('change', handleColorSchemeChange);
+      reducedMotionQuery.removeEventListener('change', handleReducedMotionChange);
+      contrastQuery.removeEventListener('change', handleContrastChange);
+    };
   }, [mode]);
+
+  // Apply color-blind safe mode
+  useEffect(() => {
+    const root = document.documentElement;
+    if (colorBlindSafe) {
+      root.classList.add('color-blind-safe');
+    } else {
+      root.classList.remove('color-blind-safe');
+    }
+  }, [colorBlindSafe]);
 
   // Apply theme to CSS custom properties
   const applyTheme = useCallback((theme: 'warm' | 'cool') => {
@@ -45,34 +84,17 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       root.style.setProperty('--text-secondary', 'oklch(0.75 0.04 50)');
       root.style.setProperty('--text-accent', 'oklch(0.72 0.14 85)');
       root.style.setProperty('--border-subtle', 'oklch(0.35 0.08 75 / 0.3)');
-      root.style.setProperty('--border-default', 'oklch(0.52 0.12 75 / 0.4)');
-      root.style.setProperty('--interactive-default', 'oklch(0.52 0.12 75)');
-      root.style.setProperty('--interactive-hover', 'oklch(0.72 0.14 85)');
-      root.style.setProperty('--glow-ember', 'oklch(0.75 0.16 45)');
-      root.style.setProperty('--glow-mystery', 'oklch(0.62 0.18 285)');
-      root.style.setProperty('--glow-teal', 'oklch(0.68 0.14 185)');
     } else {
-      // Cool variant (future use)
-      root.style.setProperty('--bg-scene', 'oklch(0.08 0.01 260)');
-      root.style.setProperty('--bg-canvas', 'oklch(0.12 0.015 260)');
-      root.style.setProperty('--bg-card', 'oklch(0.18 0.02 260)');
-      root.style.setProperty('--text-primary', 'oklch(0.75 0.02 260)');
-      root.style.setProperty('--text-secondary', 'oklch(0.65 0.03 260)');
-      root.style.setProperty('--text-accent', 'oklch(0.68 0.14 185)');
-      root.style.setProperty('--border-subtle', 'oklch(0.4 0.08 185 / 0.3)');
-      root.style.setProperty('--border-default', 'oklch(0.55 0.12 185 / 0.4)');
-      root.style.setProperty('--interactive-default', 'oklch(0.55 0.12 185)');
-      root.style.setProperty('--interactive-hover', 'oklch(0.68 0.14 185)');
-      root.style.setProperty('--glow-ember', 'oklch(0.68 0.14 185)');
-      root.style.setProperty('--glow-mystery', 'oklch(0.62 0.18 285)');
-      root.style.setProperty('--glow-teal', 'oklch(0.68 0.14 185)');
+      // Cool variant (for light mode preference)
+      root.style.setProperty('--bg-scene', 'oklch(0.95 0.005 240)');
+      root.style.setProperty('--bg-canvas', 'oklch(0.92 0.008 240)');
+      root.style.setProperty('--bg-card', 'oklch(0.88 0.01 240)');
+      root.style.setProperty('--text-primary', 'oklch(0.25 0.03 45)');
+      root.style.setProperty('--text-secondary', 'oklch(0.45 0.04 50)');
+      root.style.setProperty('--text-accent', 'oklch(0.42 0.14 75)');
+      root.style.setProperty('--border-subtle', 'oklch(0.52 0.12 75 / 0.3)');
     }
   }, []);
-
-  // Apply initial theme
-  useEffect(() => {
-    applyTheme(resolvedTheme);
-  }, [resolvedTheme, applyTheme]);
 
   const setMode = useCallback((newMode: ThemeMode) => {
     setModeState(newMode);
@@ -81,27 +103,38 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       setResolvedTheme(theme);
       applyTheme(theme);
     } else {
-      // Re-check system preference
+      // Re-evaluate system preference
       const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      const theme = isDark ? 'warm' : 'cool';
-      setResolvedTheme(theme);
-      applyTheme(theme);
+      setResolvedTheme(isDark ? 'warm' : 'cool');
+      applyTheme(isDark ? 'warm' : 'cool');
     }
   }, [applyTheme]);
 
   const toggleTheme = useCallback(() => {
-    const newMode: ThemeMode = mode === 'warm' ? 'cool' : 'warm';
+    const newMode = resolvedTheme === 'warm' ? 'cool' : 'warm';
     setMode(newMode);
-  }, [mode]);
+  }, [resolvedTheme, setMode]);
 
-  const value: ThemeContextValue = {
-    mode,
-    setMode,
-    resolvedTheme,
-    toggleTheme,
-  };
+  const toggleColorBlindSafe = useCallback(() => {
+    setColorBlindSafe(prev => !prev);
+  }, []);
 
-  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
+  return (
+    <ThemeContext.Provider
+      value={{
+        mode,
+        setMode,
+        resolvedTheme,
+        toggleTheme,
+        reducedMotion,
+        highContrast,
+        colorBlindSafe,
+        toggleColorBlindSafe,
+      }}
+    >
+      {children}
+    </ThemeContext.Provider>
+  );
 }
 
 export function useTheme() {

@@ -78,6 +78,7 @@ export function About() {
         padding: 'var(--space-16) var(--space-6)',
         position: 'relative',
       }}
+      aria-labelledby="about-heading"
     >
       {/* 3D Skill Orbs Background */}
       {threeDEnabled && diaryState === 'open' && currentSection === 'about' && (
@@ -93,10 +94,10 @@ export function About() {
           <SkillOrbSystem
             count={12}
             radius={2.2}
-            onHover={(skill) => {
+            onHover={() => {
               // Could trigger UI tooltip
             }}
-            onClick={(skill) => {
+            onClick={() => {
               // Could open skill detail
             }}
           />
@@ -312,7 +313,7 @@ export function About() {
           zIndex: 20,
         }}
       >
-        {['hero', 'about', 'skills', 'projects', 'experience', 'contact'].map((s, i) => (
+        {['hero', 'about', 'skills', 'projects', 'experience', 'contact'].map((s) => (
           <motion.button
             key={s}
             className={`section-dot ${currentSection === s ? 'active' : ''}`}

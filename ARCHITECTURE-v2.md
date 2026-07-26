@@ -384,8 +384,11 @@ src/
 - [x] Implement Diary page-turn physics (Vertelet simulation)
 - [x] Add AudioProvider with subtle SFX (procedural Web Audio)
 - [x] Implement Event Bus for scene↔UI communication
-- [ ] Polish: reduced motion, high contrast, a11y audit
-- [ ] Performance audit & optimization
+- [ ] **Phase 4: Polish** — reduced motion, high contrast, a11y audit
+- [ ] **Phase 4: Polish** — Performance audit & optimization
+- [ ] **Phase 4: Polish** — Lazy load heavy sections, mobile fallback
+- [ ] **Phase 4: Polish** — Copy polish, easter eggs, loading screen
+- [ ] **Phase 5: Deploy** — Production build verification, Lighthouse audit, deploy
 
 ---
 

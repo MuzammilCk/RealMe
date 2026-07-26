@@ -18,12 +18,12 @@ gsap.registerPlugin(ScrollTrigger);
  */
 export function Projects() {
   const sectionRef = useRef<HTMLDivElement>(null);
-  const { progress, section: currentSection, getSectionProgress } = useScroll();
+  const { section: currentSection } = useScroll();
   const { diaryState, threeDEnabled, openProject, activeProject } = usePortfolioStore();
   const { camera } = useThree();
-  const { emberWhoosh, success } = useAudio();
+  const { success } = useAudio();
 
-  const [hoveredProject, setHoveredProject] = useState<string | null>(null);
+  const [hoveredProject] = useState<string | null>(null);
   const cameraTargetRef = useRef(new THREE.Vector3(0, 0.35, 0));
   const isOrbitingRef = useRef(true);
 
@@ -44,35 +44,6 @@ export function Projects() {
     }
   });
 
-  // Handle project hover from 3D scene
-  const handleProjectHover = (projectId: string | null) => {
-    setHoveredProject(projectId);
-    if (projectId) {
-      emberWhoosh();
-      isOrbitingRef.current = false;
-
-      // Camera moves to project
-      const projectIndex = PROJECTS.findIndex(p => p.id === projectId);
-      const angle = (projectIndex - 1) * (Math.PI / 4);
-      const targetPos = new THREE.Vector3(
-        Math.cos(angle) * 3,
-        2.5,
-        Math.sin(angle) * 3 + 2
-      );
-
-      gsap.to(camera.position, {
-        x: targetPos.x,
-        y: targetPos.y,
-        z: targetPos.z,
-        duration: 1.0,
-        ease: 'power3.inOut',
-        onUpdate: () => camera.lookAt(0, 0.5, 0),
-      });
-    } else {
-      isOrbitingRef.current = true;
-    }
-  };
-
   const handleProjectClick = (projectId: string) => {
     openProject(projectId);
     success();
@@ -89,6 +60,7 @@ export function Projects() {
         position: 'relative',
         overflow: 'hidden',
       }}
+      aria-labelledby="projects-heading"
     >
       {/* 3D Scene Background - Project Scrolls on Desk */}
       {threeDEnabled && diaryState === 'open' && (
@@ -320,7 +292,7 @@ export function Projects() {
           zIndex: 20,
         }}
       >
-        {['hero', 'about', 'skills', 'projects', 'experience', 'contact'].map((s, i) => (
+        {['hero', 'about', 'skills', 'projects', 'experience', 'contact'].map((s) => (
           <motion.button
             key={s}
             className={`section-dot ${currentSection === s ? 'active' : ''}`}

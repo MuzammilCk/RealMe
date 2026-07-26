@@ -3,8 +3,8 @@ import { useThree, useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { usePortfolioStore } from '../../store/usePortfolioStore';
-import { useScroll } from './ScrollProvider';
+import { usePortfolioStore } from '../store/usePortfolioStore';
+import { useScroll } from '../app/providers/ScrollProvider';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -14,8 +14,8 @@ gsap.registerPlugin(ScrollTrigger);
  * ARCHITECTURE-v2 §3.3: useSceneSync — Subscribe to ScrollContext, drive CameraRig
  */
 export function useSceneSync() {
-  const { progress, section, direction, velocity } = useScroll();
-  const { camera, scene, gl } = useThree();
+  const { progress, section } = useScroll();
+  const { camera, scene } = useThree();
   const { diaryState, threeDEnabled } = usePortfolioStore();
 
   const cameraTargetsRef = useRef<Map<string, THREE.Vector3>>(new Map());
@@ -46,7 +46,7 @@ export function useSceneSync() {
 
   // Sync camera on section change
   useEffect(() => {
-    if (!threeDEnabled || diaryState !== 'open' || !section) return;
+    if (!threeDEnabled || !section) return;
 
     // Don't interrupt diary opening/closing animations
     if (diaryState === 'opening' || diaryState === 'closing') return;
@@ -91,7 +91,7 @@ export function useSceneSync() {
   }, [section, threeDEnabled, diaryState, camera]);
 
   // Continuous camera parallax based on scroll progress (when diary is closed)
-  useFrame((_, delta) => {
+  useFrame(() => {
     if (!threeDEnabled || diaryState !== 'closed') return;
 
     // Subtle parallax on scroll progress
@@ -106,9 +106,9 @@ export function useSceneSync() {
     // This would emit an event that particle systems listen to
     // For now, we'll use a custom event that effects can listen to
     window.dispatchEvent(new CustomEvent('scene:sectionChange', {
-      detail: { section: sectionId, direction, velocity }
+      detail: { section: sectionId }
     }));
-  }, [direction, velocity]);
+  }, []);
 
   // Highlight interactive objects near camera
   const highlightNearbyObjects = useCallback(() => {
@@ -143,7 +143,7 @@ export function useSceneSync() {
  * Hook for 3D effects to listen to scene events
  */
 export function useSceneEvents() {
-  const { deviceTier, reducedMotion } = usePortfolioStore();
+  const { reducedMotion } = usePortfolioStore();
 
   const subscribe = useCallback((event: string, handler: (detail: any) => void) => {
     const wrappedHandler = (e: CustomEvent) => {
@@ -169,7 +169,7 @@ export function useParticleEvents() {
   // Section change bursts
   useEffect(() => {
     const unsubscribe = subscribe('scene:sectionChange', (detail) => {
-      const { section, direction } = detail;
+      const { section } = detail;
       const key = `section-${section}`;
       burstRef.current.set(key, performance.now());
 
@@ -216,7 +216,7 @@ export function useCameraControl() {
     });
   }, [camera]);
 
-  const setOrbit = useCallback((enabled: boolean) => {
+  const setOrbit = useCallback(() => {
     // This would integrate with OrbitControls if used
     // For now, the CameraRig handles orbit behavior
   }, []);

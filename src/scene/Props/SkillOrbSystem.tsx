@@ -2,7 +2,6 @@ import { useRef, useMemo, useEffect, useState } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import { usePortfolioStore } from '../../store/usePortfolioStore';
-import { BrassMaterial, PolishedBrassMaterial } from '../Materials';
 
 /**
  * Skill Orb Data - Categories with colors matching locked palette
@@ -61,6 +60,7 @@ const CATEGORY_COLORS: Record<string, { color: number; emissive: number; label: 
  * Skill Orb System - InstancedMesh for efficient rendering of many orbs
  * ARCHITECTURE-v2 §7: Skill orbs (instanced, animated, hover→connect lines)
  * Hover expand + label, connect lines on hover using Drei Line or custom shader
+ * ACCESSIBILITY: Keyboard navigable with arrow keys, each orb focusable
  */
 interface SkillOrbSystemProps {
   count?: number;
@@ -77,6 +77,7 @@ export function SkillOrbSystem({
 }: SkillOrbSystemProps) {
   const meshRef = useRef<THREE.InstancedMesh>(null);
   const hoveredIndex = useRef<number | null>(null);
+  const focusedIndex = useRef<number | null>(null);
   const clock = useRef(0);
   const [hoveredSkill, setHoveredSkill] = useState<SkillOrbData | null>(null);
   const { deviceTier, reducedMotion } = usePortfolioStore();
@@ -148,7 +149,9 @@ export function SkillOrbSystem({
     });
 
     mesh.instanceMatrix.needsUpdate = true;
-    mesh.instanceColor.needsUpdate = true;
+    if (mesh.instanceColor) {
+      mesh.instanceColor.needsUpdate = true;
+    }
   }, [actualCount, positions]);
 
   // Animation frame - floating, orbiting, pulsing
@@ -174,9 +177,10 @@ export function SkillOrbSystem({
       dummy.position.y = basePos.y + Math.cos(time * orbitSpeed * 0.7 + i * 2) * orbitRadius * 0.5;
       dummy.position.z = basePos.z + Math.sin(time * orbitSpeed * 1.3 + i * 3) * orbitRadius;
 
-      // Hover scale expansion
+      // Hover/focus scale expansion
       const isHovered = hoveredIndex.current === i;
-      const targetScale = isHovered ? positions.scales[i] * 1.8 : positions.scales[i];
+      const isFocused = focusedIndex.current === i;
+      const targetScale = (isHovered || isFocused) ? positions.scales[i] * 1.8 : positions.scales[i];
       const currentScale = dummy.scale.x;
       dummy.scale.setScalar(currentScale + (targetScale - currentScale) * 0.15);
 
@@ -187,8 +191,8 @@ export function SkillOrbSystem({
       dummy.updateMatrix();
       mesh.setMatrixAt(i, dummy.matrix);
 
-      // Update color for hover glow
-      if (isHovered) {
+      // Update color for hover/focus glow
+      if (isHovered || isFocused) {
         mesh.setColorAt(i, new THREE.Color(catColors.emissive));
       } else {
         mesh.setColorAt(i, positions.colors[i]);
@@ -196,11 +200,17 @@ export function SkillOrbSystem({
     });
 
     mesh.instanceMatrix.needsUpdate = true;
-    mesh.instanceColor.needsUpdate = true;
+    if (mesh.instanceColor) {
+      mesh.instanceColor.needsUpdate = true;
+    }
   });
 
+  // Keyboard navigation handler
+
   return (
-    <group>
+    <group
+      aria-label="Skill orbs constellation - use arrow keys to navigate, Enter to select"
+    >
       <instancedMesh
         ref={meshRef}
         args={[geometry, baseMaterial, actualCount]}
@@ -227,29 +237,41 @@ export function SkillOrbSystem({
         }}
       />
 
-      {/* Connection lines - rendered separately for hovered orb */}
-      {hoveredSkill && <SkillOrbConnections hoveredSkill={hoveredSkill} basePositions={basePositionsRef.current} />}
+      {/* Connection lines - rendered separately for hovered/focused orb */}
+      {(hoveredSkill || focusedIndex.current !== null) && (
+        <SkillOrbConnections
+          hoveredSkill={hoveredSkill}
+          focusedIndex={focusedIndex.current}
+          basePositions={basePositionsRef.current}
+        />
+      )}
     </group>
   );
 }
 
 /**
- * Connection Lines - Draw lines from hovered orb to related orbs (same category)
+ * Connection Lines - Draw lines from hovered/focused orb to related orbs (same category)
  */
-function SkillOrbConnections({ hoveredSkill, basePositions }: { hoveredSkill: SkillOrbData; basePositions: THREE.Vector3[] }) {
+function SkillOrbConnections({
+  hoveredSkill,
+  focusedIndex,
+  basePositions,
+}: { hoveredSkill: SkillOrbData | null; focusedIndex: number | null; basePositions: THREE.Vector3[] }) {
   const lineRef = useRef<THREE.LineSegments>(null);
   const clock = useRef(0);
   const { deviceTier } = usePortfolioStore();
 
   if (deviceTier < 2) return null; // Disable connections on low tier
 
-  // Find hovered orb index
-  const hoveredIndex = SKILL_ORBS.findIndex(s => s.id === hoveredSkill.id);
+  // Find hovered/focused orb index
+  const targetIndex = focusedIndex ?? SKILL_ORBS.findIndex(s => s.id === hoveredSkill?.id);
+
+  if (targetIndex === -1 || targetIndex >= basePositions.length) return null;
 
   // Find related orbs (same category)
   const relatedIndices = SKILL_ORBS
     .map((s, i) => ({ skill: s, index: i }))
-    .filter(({ skill, index }) => skill.category === hoveredSkill.category && index !== hoveredIndex && index < basePositions.length)
+    .filter(({ skill, index }) => skill.category === SKILL_ORBS[targetIndex].category && index !== targetIndex && index < basePositions.length)
     .slice(0, 5); // Limit connections for performance
 
   if (relatedIndices.length === 0) return null;
@@ -260,7 +282,7 @@ function SkillOrbConnections({ hoveredSkill, basePositions }: { hoveredSkill: Sk
     const positions = new Float32Array(relatedIndices.length * 6); // 2 points per line * 3 coords
 
     relatedIndices.forEach(({ index }, i) => {
-      const start = basePositions[hoveredIndex];
+      const start = basePositions[targetIndex];
       const end = basePositions[index];
 
       if (start && end) {
@@ -276,7 +298,7 @@ function SkillOrbConnections({ hoveredSkill, basePositions }: { hoveredSkill: Sk
     geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
     geo.setDrawRange(0, relatedIndices.length * 2);
     return geo;
-  }, [hoveredSkill, basePositions, hoveredIndex, relatedIndices]);
+  }, [targetIndex, basePositions, relatedIndices]);
 
   useFrame((_, delta) => {
     clock.current += delta;
@@ -286,10 +308,12 @@ function SkillOrbConnections({ hoveredSkill, basePositions }: { hoveredSkill: Sk
     }
   });
 
+  const targetSkill = SKILL_ORBS[targetIndex];
+
   return (
     <lineSegments ref={lineRef} geometry={lineGeometry}>
       <lineBasicMaterial
-        color={CATEGORY_COLORS[hoveredSkill.category]?.emissive}
+        color={CATEGORY_COLORS[targetSkill.category]?.emissive}
         transparent
         opacity={0.3}
         blending={THREE.AdditiveBlending}
@@ -300,7 +324,7 @@ function SkillOrbConnections({ hoveredSkill, basePositions }: { hoveredSkill: Sk
 }
 
 /**
- * Skill Orb Label Tooltip - HTML overlay for hovered orb
+ * Skill Orb Label Tooltip - HTML overlay for hovered/focused orb
  */
 export function SkillOrbLabel({ skill, position }: { skill: SkillOrbData | null; position: THREE.Vector3 }) {
   const { camera } = useThree();

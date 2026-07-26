@@ -18,9 +18,61 @@ const OPEN_ANGLE = 2.7; // ~155°, cover swings open on the spine hinge
 export default function CameraRig({ coverPivotRef, lampLightRef }: CameraRigProps) {
   const camera = useThree((s) => s.camera);
   const diaryState = usePortfolioStore((s) => s.diaryState);
+  const threeDEnabled = usePortfolioStore((s) => s.threeDEnabled);
   const _setDiaryState = usePortfolioStore((s) => s._setDiaryState);
   const tlRef = useRef<gsap.core.Timeline | null>(null);
   const clock = useRef(0);
+  const introCompleteRef = useRef(false);
+  const introStartedRef = useRef(false);
+
+  // Cinematic intro sequence when 3D is first enabled
+  useEffect(() => {
+    if (!threeDEnabled || introCompleteRef.current || introStartedRef.current) return;
+
+    introStartedRef.current = true;
+
+    const tl = gsap.timeline({
+      onComplete: () => {
+        introCompleteRef.current = true;
+        // Enable scroll after intro
+        document.body.style.overflow = 'auto';
+      },
+    });
+
+    // Lock scroll during intro
+    document.body.style.overflow = 'hidden';
+
+    // Camera starts close to diary cover, pulls back to INTRO_CAM
+    tl.to(camera.position, {
+      x: INTRO_CAM.x,
+      y: INTRO_CAM.y,
+      z: INTRO_CAM.z,
+      duration: 1.6,
+      ease: 'expo.out',
+    }, 0);
+
+    // Diary cover subtle scale/rotate
+    if (coverPivotRef.current) {
+      tl.to(coverPivotRef.current.scale, {
+        x: 1,
+        y: 1,
+        z: 1,
+        duration: 1.2,
+        ease: 'power2.out',
+      }, 0.2);
+
+      tl.to(coverPivotRef.current.rotation, {
+        y: 0.05,
+        duration: 1.6,
+        ease: 'expo.out',
+      }, 0);
+    }
+
+    return () => {
+      tl.kill();
+      document.body.style.overflow = 'auto';
+    };
+  }, [threeDEnabled, camera, coverPivotRef]);
 
   useEffect(() => {
     // ignore the resting states — only act on a real transition
@@ -56,6 +108,7 @@ export default function CameraRig({ coverPivotRef, lampLightRef }: CameraRigProp
     if (diaryState === 'closed') {
       camera.position.x = INTRO_CAM.x + Math.sin(clock.current * 0.15) * 0.15;
       camera.position.y = INTRO_CAM.y + Math.sin(clock.current * 0.1) * 0.08;
+      camera.position.z = INTRO_CAM.z + Math.cos(clock.current * 0.12) * 0.1;
     }
     camera.lookAt(LOOK_AT);
   });

@@ -1,12 +1,8 @@
-import { useEffect, useRef } from 'react';
+import { useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
-import { useThree, useFrame } from '@react-three/fiber';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { usePortfolioStore } from '../../store/usePortfolioStore';
-import { useScroll } from '../providers/ScrollProvider';
-import DiaryHero from '../../scene/Props/DiaryHero';
-import * as THREE from 'three';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -17,100 +13,14 @@ interface HeroProps {
 /**
  * Hero Section - Diary center-stage with cinematic intro
  * ARCHITECTURE-v2 §3.2.1: Hero - 3D diary center, camera intro (1200ms), title stagger, scroll hint
+ * NOTE: Camera animation is now handled in CameraRig inside CanvasRoot
  */
 export function Hero({ onScrollHint }: HeroProps) {
-  const { camera } = useThree();
-  const { progress, section } = useScroll();
   const { diaryState, threeDEnabled, openDiary, setThreeDEnabled } = usePortfolioStore();
-  const diaryRef = useRef<THREE.Group>(null);
-  const introCompleteRef = useRef(false);
   const scrollHintRef = useRef<HTMLDivElement>(null);
 
   // Trigger in-view for scroll hint
   const scrollHintInView = useInView(scrollHintRef, { once: true, margin: '0px 0px -200px 0px' });
-
-  // Cinematic intro sequence when 3D enables
-  useEffect(() => {
-    if (!threeDEnabled || introCompleteRef.current) return;
-
-    const tl = gsap.timeline({
-      onComplete: () => {
-        introCompleteRef.current = true;
-        // Enable scroll after intro
-        document.body.style.overflow = 'auto';
-      },
-    });
-
-    // Lock scroll during intro
-    document.body.style.overflow = 'hidden';
-
-    // Camera starts close to diary cover, pulls back
-    tl.to(camera.position, {
-      x: 0,
-      y: 4.0,
-      z: 6.4,
-      duration: 1.6,
-      ease: 'expo.out',
-    }, 0);
-
-    // Diary cover subtle scale/rotate
-    if (diaryRef.current) {
-      tl.to(diaryRef.current.scale, {
-        x: 1,
-        y: 1,
-        z: 1,
-        duration: 1.2,
-        ease: 'power2.out',
-      }, 0.2);
-
-      tl.to(diaryRef.current.rotation, {
-        y: 0.05,
-        duration: 1.6,
-        ease: 'expo.out',
-      }, 0);
-    }
-
-    // Title stagger reveal
-    tl.to('.hero-title', {
-      opacity: 1,
-      y: 0,
-      duration: 0.8,
-      stagger: 0.15,
-      ease: 'power3.out',
-    }, 0.6);
-
-    // Subtitle reveal
-    tl.to('.hero-subtitle', {
-      opacity: 1,
-      y: 0,
-      duration: 0.6,
-      ease: 'power3.out',
-    }, 1.0);
-
-    // Scroll hint appear
-    tl.to('.hero-scroll-hint', {
-      opacity: 1,
-      duration: 0.6,
-      ease: 'power3.out',
-    }, 1.4);
-
-    return () => {
-      tl.kill();
-      document.body.style.overflow = 'auto';
-    };
-  }, [threeDEnabled, camera]);
-
-  // Scroll-driven camera parallax (when diary closed)
-  useFrame((_) => {
-    if (!threeDEnabled || diaryState !== 'closed') return;
-
-    // Gentle orbital drift
-    const time = performance.now() * 0.001;
-    camera.position.x = Math.sin(time * 0.15) * 0.15;
-    camera.position.y = 4.0 + Math.sin(time * 0.1) * 0.08;
-    camera.position.z = 6.4 + Math.cos(time * 0.12) * 0.1;
-    camera.lookAt(0, 0.35, 0);
-  });
 
   // Handle scroll hint click
   const handleScrollHintClick = () => {
@@ -132,6 +42,7 @@ export function Hero({ onScrollHint }: HeroProps) {
         position: 'relative',
         padding: 'var(--space-16) var(--space-6)',
       }}
+      aria-labelledby="hero-title"
     >
       {/* Background vignette overlay */}
       <div
@@ -144,25 +55,6 @@ export function Hero({ onScrollHint }: HeroProps) {
           zIndex: 1,
         }}
       />
-
-      {/* 3D Diary Hero - only when 3D enabled */}
-      {threeDEnabled && (
-        <div
-          className="hero-canvas"
-          style={{
-            position: 'absolute',
-            inset: 0,
-            zIndex: 0,
-            width: '100%',
-            height: '100%',
-          }}
-        >
-          <DiaryHero
-            coverPivotRef={diaryRef as any}
-            onBegin={openDiary}
-          />
-        </div>
-      )}
 
       {/* UI Overlay */}
       <div
@@ -198,6 +90,7 @@ export function Hero({ onScrollHint }: HeroProps) {
 
         {/* Main Title */}
         <motion.h1
+          id="hero-title"
           className="hero-title"
           style={{
             fontFamily: 'var(--font-display)',
@@ -311,17 +204,12 @@ export function Hero({ onScrollHint }: HeroProps) {
             fill="none"
             stroke="currentColor"
             strokeWidth="1.5"
-            style={{ animation: 'bounce 2s ease-in-out infinite' }}
+            animate={{ y: [0, -8, -4, 0] }}
+            transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
           >
             <path d="M12 5v14M19 12l-7 7-7-7" />
           </motion.svg>
-          <style jsx>{`
-            @keyframes bounce {
-              0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
-              40% { transform: translateY(-8px); }
-              60% { transform: translateY(-4px); }
-            }
-          `}</style>
+          <style>{`@keyframes bounce { 0%, 20%, 50%, 80%, 100% { transform: translateY(0); } 40% { transform: translateY(-8px); } 60% { transform: translateY(-4px); } }`}</style>
         </motion.div>
       </div>
 

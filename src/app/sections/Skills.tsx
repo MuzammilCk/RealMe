@@ -18,7 +18,7 @@ gsap.registerPlugin(ScrollTrigger);
  */
 export function Skills() {
   const sectionRef = useRef<HTMLDivElement>(null);
-  const { section: currentSection, getSectionProgress } = useScroll();
+  const { section: currentSection } = useScroll();
   const { diaryState, threeDEnabled, reducedMotion } = usePortfolioStore();
   const { camera } = useThree();
   const { brassClick, hoverGlow } = useAudio();
@@ -51,8 +51,6 @@ export function Skills() {
   // Camera behavior for skills section
   useFrame(() => {
     if (!threeDEnabled || diaryState !== 'open' || currentSection !== 'skills') return;
-
-    const sectionProgress = getSectionProgress('skills');
 
     if (isOrbitingRef.current && !reducedMotion) {
       // Slow orbital camera around skill constellation
@@ -89,6 +87,7 @@ export function Skills() {
         position: 'relative',
         overflow: 'hidden',
       }}
+      aria-labelledby="skills-heading"
     >
       {/* Category Filter Bar */}
       <div
@@ -155,14 +154,13 @@ export function Skills() {
           }}
         >
           <SkillOrbSystem
-            ref={orbsRef as any}
             count={filteredOrbs.length}
             radius={2.5}
-            onHover={(skill) => {
-              setHoveredSkill(skill);
+            onHover={(_skill) => {
+              setHoveredSkill(_skill);
               hoverGlow();
             }}
-            onClick={(skill) => {
+            onClick={() => {
               brassClick();
               // Could open skill detail modal
             }}
@@ -474,7 +472,7 @@ export function Skills() {
           zIndex: 20,
         }}
       >
-        {['hero', 'about', 'skills', 'projects', 'experience', 'contact'].map((s, i) => (
+        {['hero', 'about', 'skills', 'projects', 'experience', 'contact'].map((s) => (
           <motion.button
             key={s}
             className={`section-dot ${currentSection === s ? 'active' : ''}`}

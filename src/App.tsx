@@ -7,6 +7,7 @@ import LoadingScreen from './content/LoadingScreen';
 import CanvasErrorBoundary from './scene/CanvasErrorBoundary';
 import { useDiaryControls } from './content/useDiaryControls';
 import AppLayout from './app/layout';
+import { useKonamiCode } from './ui/hooks/useEasterEggs';
 
 // Layer A is code-split: three.js / R3F only download when 3D is enabled, so
 // the tier-1 / no-WebGL / reduced-motion fallback (Layer B only) stays light.
@@ -18,6 +19,13 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const { close } = useDiaryControls();
 
+  // Konami code easter egg - triggers mystery mode
+  useKonamiCode(() => {
+    // Toggle mystery mode - could change theme, enable special effects, etc.
+    console.log('✦ Konami code activated — Mystery mode engaged');
+    // Could trigger: themeProvider.toggleTheme(), particle burst, etc.
+  });
+
   // --- boot: device detection, deep-link seed, minimum loading veil ---
   useEffect(() => {
     let cancelled = false;
@@ -26,15 +34,21 @@ export default function App() {
     };
     // Hard safety: the loader must never get stuck, no matter what.
     const safety = window.setTimeout(finish, 2500);
+    // Extra safety: force dismiss after 5s even if boot hangs
+    const forceFinish = window.setTimeout(() => {
+      if (!cancelled) setLoading(false);
+    }, 5000);
 
     (async () => {
       try {
         const profile = await detectDevice();
         if (cancelled) return;
-        const store = usePortfolioStore.getState();
-        store.setDeviceTier(profile.tier);
-        store.setReducedMotion(profile.reducedMotion);
-        store.setThreeDEnabled(profile.threeDEnabled);
+        usePortfolioStore.getState().setDeviceTier(profile.tier);
+        usePortfolioStore.getState().setReducedMotion(profile.reducedMotion);
+        usePortfolioStore.getState().setThreeDEnabled(profile.threeDEnabled);
+        // Detect mobile
+        const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+        usePortfolioStore.getState().setIsMobile(isMobile);
 
         // deep link: ?chapter=projects&project=ai-invoice-studio
         const { chapter, project } = readUrl();
@@ -56,6 +70,7 @@ export default function App() {
     return () => {
       cancelled = true;
       window.clearTimeout(safety);
+      window.clearTimeout(forceFinish);
     };
   }, []);
 

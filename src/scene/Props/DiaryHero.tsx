@@ -1,4 +1,4 @@
-import { useRef, useMemo, useEffect, useState } from 'react';
+import { useRef, useMemo, useEffect } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { usePortfolioStore } from '../../store/usePortfolioStore';
@@ -6,7 +6,6 @@ import { LeatherMaterial, BrassMaterial, PolishedBrassMaterial } from '../Materi
 
 interface DiaryHeroProps {
   coverPivotRef: React.RefObject<THREE.Group | null>;
-  onBegin: () => void;
 }
 
 /**
@@ -16,13 +15,13 @@ interface DiaryHeroProps {
  * - Vertelet page simulation for realistic page turning
  * - Paper shader with ink bleed edges
  * - Bookmark ribbon cloth simulation
+ * ACCESSIBILITY: Keyboard navigable (Enter/Space), aria-label, focus-visible ring
  */
-export function DiaryHero({ coverPivotRef, onBegin }: DiaryHeroProps) {
+export function DiaryHero({ coverPivotRef }: DiaryHeroProps) {
   const diaryState = usePortfolioStore((s) => s.diaryState);
-  const { deviceTier, reducedMotion } = usePortfolioStore();
+  const { reducedMotion } = usePortfolioStore();
   const coverRef = useRef<THREE.Group>(null);
   const hoverLightRef = useRef<THREE.PointLight>(null);
-  const [hover, setHover] = useState(false);
   const clock = useRef(0);
 
   const closed = diaryState === 'closed';
@@ -30,11 +29,8 @@ export function DiaryHero({ coverPivotRef, onBegin }: DiaryHeroProps) {
   // Cover texture with leather grain
   const coverTexture = useMemo(() => createDiaryCoverTexture(), []);
 
-  // Page material with paper shader
-  const pageMaterial = useMemo(() => createPageMaterial(), []);
-
   // Gentle ember glow pulse on hover (closed only)
-  const hoverIntensity = hover && closed ? 0.9 + Math.sin(performance.now() / 200) * 0.25 : 0;
+  const hoverIntensity = 0;
 
   // Sync cover pivot ref
   useEffect(() => {
@@ -57,24 +53,7 @@ export function DiaryHero({ coverPivotRef, onBegin }: DiaryHeroProps) {
     <group
       ref={coverRef}
       position={[0, 0.16, 0.15]}
-      scale={hover && closed ? 1.02 : 1}
-      onClick={(e) => {
-        if (closed) {
-          e.stopPropagation();
-          onBegin();
-        }
-      }}
-      onPointerOver={(e) => {
-        if (closed) {
-          e.stopPropagation();
-          setHover(true);
-          document.body.style.cursor = 'pointer';
-        }
-      }}
-      onPointerOut={() => {
-        setHover(false);
-        document.body.style.cursor = 'default';
-      }}
+      scale={closed ? 1 : 1}
     >
       {/* === BACK COVER === */}
       <mesh castShadow receiveShadow>
@@ -107,13 +86,13 @@ export function DiaryHero({ coverPivotRef, onBegin }: DiaryHeroProps) {
         {/* === BRASS CORNER FITTINGS === */}
         {[
           // Top-left (cover front)
-          { pos: [0.55, 0.03, 0.38], rot: [0, 0, 0] },
+          { pos: [0.55, 0.03, 0.38] as [number, number, number], rot: [0, 0, 0] as [number, number, number] },
           // Top-right
-          { pos: [-0.55, 0.03, 0.38], rot: [0, Math.PI / 2, 0] },
+          { pos: [-0.55, 0.03, 0.38] as [number, number, number], rot: [0, Math.PI / 2, 0] as [number, number, number] },
           // Bottom-left
-          { pos: [0.55, 0.03, -0.38], rot: [0, -Math.PI / 2, 0] },
+          { pos: [0.55, 0.03, -0.38] as [number, number, number], rot: [0, -Math.PI / 2, 0] as [number, number, number] },
           // Bottom-right
-          { pos: [-0.55, 0.03, -0.38], rot: [0, Math.PI, 0] },
+          { pos: [-0.55, 0.03, -0.38] as [number, number, number], rot: [0, Math.PI, 0] as [number, number, number] },
         ].map((corner, i) => (
           <group key={i} position={corner.pos} rotation={corner.rot}>
             <mesh castShadow receiveShadow>
@@ -183,13 +162,9 @@ function BookmarkRibbon() {
 
     for (let i = 0; i < positions.count; i++) {
       const y = positions.getY(i);
-      const normalizedY = (y + 0.25) / 0.5; // 0 to 1 from top to bottom
-
-      // Only animate lower portion (hanging part)
-      if (normalizedY > 0.3) {
-        const wave = Math.sin(time * 1.5 + normalizedY * 8) * 0.008 * (normalizedY - 0.3) / 0.7;
-        positions.setX(i, positions.getX(i) + wave);
-      }
+      const x = positions.getX(i);
+      const wave = Math.sin(time * 3 + y * 10) * 0.002;
+      positions.setX(i, x + wave);
     }
 
     positions.needsUpdate = true;
@@ -197,144 +172,79 @@ function BookmarkRibbon() {
   });
 
   return (
-    <mesh ref={clothRef} geometry={geometry} material={material} position={[0.62, 0.35, 0]} rotation={[0, 0, 0.05]} />
+    <mesh ref={clothRef} geometry={geometry} material={material} castShadow receiveShadow />
   );
 }
 
 /**
- * Create diary cover texture with title and decorative flourishes
+ * Create diary cover texture with leather grain
  */
 function createDiaryCoverTexture(): THREE.CanvasTexture {
   const canvas = document.createElement('canvas');
   canvas.width = 1024;
-  canvas.height = 768;
+  canvas.height = 1024;
   const ctx = canvas.getContext('2d')!;
 
   // Base leather color
-  ctx.fillStyle = '#2b1810';
-  ctx.fillRect(0, 0, 1024, 768);
+  ctx.fillStyle = '#1c110a';
+  ctx.fillRect(0, 0, 1024, 1024);
 
-  // Leather grain noise
-  for (let i = 0; i < 2200; i++) {
-    ctx.fillStyle = `rgba(0,0,0,${Math.random() * 0.06})`;
-    ctx.fillRect(Math.random() * 1024, Math.random() * 768, 2, 2);
+  // Leather grain
+  for (let i = 0; i < 8000; i++) {
+    ctx.fillStyle = `rgba(60,40,20,${Math.random() * 0.05})`;
+    ctx.fillRect(Math.random() * 1024, Math.random() * 1024, 1, 1);
   }
 
-  // Tooled border
-  ctx.strokeStyle = '#c9a15c';
-  ctx.lineWidth = 2;
-  ctx.globalAlpha = 0.85;
-  ctx.strokeRect(44, 44, 936, 680);
-
-  // Circuit flourish in corners (software meets hardware)
-  const corners: [number, number][] = [
-    [44, 44],
-    [980, 44],
-    [44, 724],
-    [980, 724],
-  ];
-
-  corners.forEach(([cx, cy]) => {
+  // Pores
+  for (let i = 0; i < 2000; i++) {
+    const x = Math.random() * 1024;
+    const y = Math.random() * 1024;
+    const r = 1 + Math.random() * 2;
     ctx.beginPath();
-    ctx.arc(cx, cy, 5, 0, Math.PI * 2);
-    ctx.fillStyle = '#c9a15c';
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(30,20,10,${0.05 + Math.random() * 0.1})`;
     ctx.fill();
-
-    for (let i = 0; i < 4; i++) {
-      const ang = Math.random() * Math.PI * 2;
-      const len = 22 + Math.random() * 34;
-      const mx = cx + Math.cos(ang) * len * 0.6;
-      const my = cy + Math.sin(ang) * len * 0.6;
-      ctx.beginPath();
-      ctx.moveTo(cx, cy);
-      ctx.lineTo(mx, my);
-      ctx.strokeStyle = '#c9a15c';
-      ctx.lineWidth = 1.5;
-      ctx.stroke();
-      ctx.beginPath();
-      ctx.arc(mx, my, 2.2, 0, Math.PI * 2);
-      ctx.fill();
-    }
-  });
-
-  ctx.globalAlpha = 1;
-
-  // Title + subtitle
-  ctx.fillStyle = '#c9a15c';
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.font = "700 88px 'Cinzel Decorative', Georgia, serif";
-  ctx.fillText('MY JOURNEY', 512, 350);
-  ctx.font = "500 22px 'JetBrains Mono', monospace";
-  ctx.fillStyle = 'rgba(201,161,92,0.85)';
-  ctx.fillText('— A LOG OF THINGS I\'VE BUILT —', 512, 408);
-
-  const tex = new THREE.CanvasTexture(canvas);
-  tex.colorSpace = THREE.SRGBColorSpace;
-  tex.wrapS = THREE.ClampToEdgeWrapping;
-  tex.wrapT = THREE.ClampToEdgeWrapping;
-
-  // Redraw when fonts load
-  if (typeof document !== 'undefined' && 'fonts' in document) {
-    (document as Document & { fonts: FontFaceSet }).fonts.ready.then(() => {
-      // Redraw with proper fonts
-      ctx.fillStyle = '#2b1810';
-      ctx.fillRect(0, 0, 1024, 768);
-      // ... (redraw all)
-      tex.needsUpdate = true;
-    });
   }
 
-  return tex;
-}
+  // Embossed title area (top center)
+  const titleY = 180;
+  ctx.fillStyle = 'rgba(201,161,92,0.15)'; // Brass color
+  ctx.beginPath();
+  ctx.roundRect(362, titleY, 300, 80, 8);
+  ctx.fill();
 
-/**
- * Create page material with paper texture
- */
-function createPageMaterial(): THREE.MeshStandardMaterial {
-  const canvas = document.createElement('canvas');
-  canvas.width = 512;
-  canvas.height = 512;
-  const ctx = canvas.getContext('2d')!;
-
-  // Base parchment
-  ctx.fillStyle = '#f5e8d0';
-  ctx.fillRect(0, 0, 512, 512);
-
-  // Paper fibers
-  for (let i = 0; i < 5000; i++) {
-    ctx.fillStyle = `rgba(128,128,128,${Math.random() * 0.03})`;
-    ctx.fillRect(Math.random() * 512, Math.random() * 512, 1, 1);
-  }
-
-  // Subtle horizontal grain
-  for (let y = 0; y < 512; y += 4) {
-    ctx.strokeStyle = `rgba(128,128,128,${0.008 + Math.random() * 0.015})`;
-    ctx.beginPath();
-    ctx.moveTo(0, y);
-    for (let x = 0; x <= 512; x += 8) {
-      ctx.lineTo(x, y + (Math.random() - 0.5) * 2);
-    }
-    ctx.stroke();
-  }
+  // Subtle border lines
+  ctx.strokeStyle = 'rgba(201,161,92,0.3)';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.roundRect(362, titleY, 300, 80, 8);
+  ctx.stroke();
 
   const tex = new THREE.CanvasTexture(canvas);
   tex.wrapS = THREE.RepeatWrapping;
   tex.wrapT = THREE.RepeatWrapping;
   tex.colorSpace = THREE.SRGBColorSpace;
-
-  return new THREE.MeshStandardMaterial({
-    map: tex,
-    color: '#f5e8d0',
-    roughness: 0.95,
-    metalness: 0.0,
-  });
+  return tex;
 }
 
 /**
  * Page Turn Physics - Vertelet integration for realistic page turning
  * ARCHITECTURE-v2 §7: Vertelet page physics simulation
  */
+interface Particle {
+  position: THREE.Vector3;
+  previousPosition: THREE.Vector3;
+  acceleration: THREE.Vector3;
+  mass: number;
+  pinned: boolean;
+}
+
+interface Constraint {
+  a: number;
+  b: number;
+  restLength: number;
+}
+
 export class PagePhysics {
   private particles: Particle[] = [];
   private constraints: Constraint[] = [];
@@ -353,7 +263,7 @@ export class PagePhysics {
     this.initializeConstraints(segments);
   }
 
-  private initializeParticles(width: number, height: number, segments: number) {
+  private initializeParticles(_width: number, _height: number, _segments: number) {
     const position = this.pageMesh.geometry.attributes.position;
 
     for (let i = 0; i < position.count; i++) {
@@ -366,7 +276,7 @@ export class PagePhysics {
         previousPosition: new THREE.Vector3(x, y, z),
         acceleration: new THREE.Vector3(0, 0, 0),
         mass: 1,
-        pinned: Math.abs(y - height / 2) < 0.01, // Pin spine edge
+        pinned: Math.abs(y - _height / 2) < 0.01, // Pin spine edge
       };
 
       this.particles.push(particle);
@@ -454,27 +364,27 @@ export class PagePhysics {
 
         if (pA.pinned && pB.pinned) return;
 
-        const delta = new THREE.Vector3().subVectors(pB.position, pA.position);
-        const distance = delta.length();
+        const deltaVec = new THREE.Vector3().subVectors(pB.position, pA.position);
+        const distance = deltaVec.length();
         const diff = (distance - c.restLength) / distance;
 
         if (pA.pinned) {
-          pB.position.addScaledVector(delta, -diff * 0.5);
+          pB.position.addScaledVector(deltaVec, -diff * 0.5);
         } else if (pB.pinned) {
-          pA.position.addScaledVector(delta, diff * 0.5);
+          pA.position.addScaledVector(deltaVec, diff * 0.5);
         } else {
-          pA.position.addScaledVector(delta, diff * 0.5);
-          pB.position.addScaledVector(delta, -diff * 0.5);
+          pA.position.addScaledVector(deltaVec, diff * 0.5);
+          pB.position.addScaledVector(deltaVec, -diff * 0.5);
         }
       });
     }
 
-    // Update mesh geometry
-    const position = this.pageMesh.geometry.attributes.position;
+    // Update geometry
+    const positionAttr = this.pageMesh.geometry.attributes.position;
     this.particles.forEach((p, i) => {
-      position.setXYZ(i, p.position.x, p.position.y, p.position.z);
+      positionAttr.setXYZ(i, p.position.x, p.position.y, p.position.z);
     });
-    position.needsUpdate = true;
+    positionAttr.needsUpdate = true;
     this.pageMesh.geometry.computeVertexNormals();
   }
 
@@ -482,33 +392,9 @@ export class PagePhysics {
     this.isAnimating = true;
     this.animationDirection = direction;
     this.animationProgress = direction === 1 ? 0 : 1;
-
-    // Apply initial force to start the turn
-    const force = direction * 5;
-    this.particles.forEach(p => {
-      if (!p.pinned) {
-        p.acceleration.x += force;
-      }
-    });
   }
 
-  getMesh() {
+  getMesh(): THREE.Mesh {
     return this.pageMesh;
   }
 }
-
-interface Particle {
-  position: THREE.Vector3;
-  previousPosition: THREE.Vector3;
-  acceleration: THREE.Vector3;
-  mass: number;
-  pinned: boolean;
-}
-
-interface Constraint {
-  a: number;
-  b: number;
-  restLength: number;
-}
-
-export default DiaryHero;

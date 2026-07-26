@@ -1,5 +1,4 @@
 import { motion } from 'framer-motion';
-import { type ReactNode } from 'react';
 
 /**
  * Avatar - User/image avatar with brass ring

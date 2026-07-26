@@ -148,6 +148,18 @@ body {
 .text-ember     { color: var(--ember-400); }
 .text-brass     { color: var(--brass-500); }
 
+/* Extended leather/brass color utilities */
+.text-leather      { color: var(--leather-500); }
+.text-leather-dim  { color: var(--leather-700); }
+.text-brass-dim    { color: var(--brass-700); }
+
+/* Opacity variants */
+.text-leather\/70  { color: var(--leather-500 / 0.7); }
+.text-leather\/10  { color: var(--leather-500 / 0.1); }
+.text-brass\/40    { color: var(--brass-500 / 0.4); }
+.text-brass\/75    { color: var(--brass-500 / 0.75); }
+.text-parchment    { color: var(--parchment-500); }
+
 /* ----------------------------------------------------------------------------
    BACKGROUND UTILITIES
    --------------------------------------------------------------------------- */
@@ -158,6 +170,13 @@ body {
 .bg-input    { background-color: var(--bg-input); }
 .bg-paper    { background-color: var(--bg-paper); }
 
+/* Extended background utilities */
+.bg-leather    { background-color: var(--leather-900); }
+.bg-leather\/95 { background-color: var(--leather-900 / 0.95); }
+.bg-void       { background-color: var(--void-950); }
+.bg-void\/95   { background-color: var(--void-950 / 0.95); }
+.bg-black\/30  { background-color: rgb(0 0 0 / 0.3); }
+
 /* ----------------------------------------------------------------------------
    BORDER UTILITIES
    --------------------------------------------------------------------------- */
@@ -166,6 +185,14 @@ body {
 .border-default { border-color: var(--border-default); }
 .border-strong  { border-color: var(--border-strong); }
 .border-glow    { border-color: var(--border-glow); }
+
+/* Extended border utilities */
+.border-leather    { border-color: var(--leather-500); }
+.border-leather\/10 { border-color: var(--leather-500 / 0.1); }
+.border-brass      { border-color: var(--brass-500); }
+.border-brass\/40  { border-color: var(--brass-500 / 0.4); }
+.border-brass\/30  { border-color: var(--brass-500 / 0.3); }
+.border-void       { border-color: var(--void-950); }
 
 /* ----------------------------------------------------------------------------
    SHADOW UTILITIES
@@ -386,6 +413,66 @@ input, textarea, select {
 .section-stagger-3 { animation-delay: calc(var(--stagger-section) * 3); }
 .section-stagger-4 { animation-delay: calc(var(--stagger-section) * 4); }
 .section-stagger-5 { animation-delay: calc(var(--stagger-section) * 5); }
+
+/* ----------------------------------------------------------------------------
+   COMPONENT UTILITIES — Common component patterns
+   --------------------------------------------------------------------------- */
+
+.eyebrow-mini {
+  font-family: var(--font-eyebrow);
+  font-weight: 400;
+  font-size: var(--text-xs);
+  line-height: var(--leading-normal);
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  margin-bottom: var(--space-3);
+}
+
+.body-copy {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: var(--text-base);
+  line-height: var(--leading-relaxed);
+  letter-spacing: var(--tracking-normal);
+  color: var(--text-primary);
+  margin-bottom: var(--space-4);
+}
+
+.cta {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-caption);
+  font-weight: 500;
+  font-size: var(--text-sm);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--text-inverse);
+  background-color: var(--interactive-default);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-base);
+  padding: var(--space-3) var(--space-6);
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-smooth);
+}
+
+.cta:hover {
+  background-color: var(--interactive-hover);
+  border-color: var(--border-strong);
+  box-shadow: var(--shadow-glow-brass);
+}
+
+.cta:active {
+  transform: scale(0.98);
+}
+
+/* Page scroll for book spread */
+.page-scroll {
+  overflow-y: auto;
+  padding: var(--space-8);
+  -webkit-overflow-scrolling: touch;
+}
 
 /* ----------------------------------------------------------------------------
    PRINT STYLES

@@ -1,7 +1,6 @@
-import { useEffect, useRef, useState } from 'react';
-import { motion, useInView } from 'framer-motion';
+import { useEffect, useRef } from 'react';
+import { motion } from 'framer-motion';
 import { useThree } from '@react-three/fiber';
-import * as THREE from 'three';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { usePortfolioStore } from '../../store/usePortfolioStore';
@@ -18,10 +17,10 @@ gsap.registerPlugin(ScrollTrigger);
  */
 export function Experience() {
   const sectionRef = useRef<HTMLDivElement>(null);
-  const { progress, section: currentSection, getSectionProgress } = useScroll();
+  const { section: currentSection } = useScroll();
   const { diaryState, threeDEnabled } = usePortfolioStore();
   const { camera } = useThree();
-  const { pageTurn, brassClick } = useAudio();
+  const { pageTurn: _pageTurn } = useAudio();
 
   // Camera behavior for experience section
   useEffect(() => {
@@ -41,17 +40,19 @@ export function Experience() {
   useEffect(() => {
     if (!sectionRef.current) return;
 
-    ScrollTrigger.create({
+    const trigger = ScrollTrigger.create({
       trigger: sectionRef.current,
       start: 'top 80%',
       end: 'bottom 20%',
       scrub: 1,
-      onUpdate: (self) => {
+      onUpdate: () => {
         // Could animate page turn here
       },
     });
 
-    return () => ScrollTrigger.getAll().forEach(t => t.kill());
+    return () => {
+      trigger.kill();
+    };
   }, []);
 
   // Left page content
@@ -247,6 +248,7 @@ export function Experience() {
         padding: 'var(--space-16) var(--space-6)',
         position: 'relative',
       }}
+      aria-labelledby="experience-heading"
     >
       {/* 3D Background - Diary on desk */}
       {threeDEnabled && diaryState === 'open' && currentSection === 'experience' && (
@@ -289,7 +291,7 @@ export function Experience() {
           zIndex: 20,
         }}
       >
-        {['hero', 'about', 'skills', 'projects', 'experience', 'contact'].map((s, i) => (
+        {['hero', 'about', 'skills', 'projects', 'experience', 'contact'].map((s) => (
           <motion.button
             key={s}
             className={`section-dot ${currentSection === s ? 'active' : ''}`}

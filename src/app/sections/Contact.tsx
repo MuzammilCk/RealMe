@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useThree } from '@react-three/fiber';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { usePortfolioStore } from '../../store/usePortfolioStore';
@@ -15,7 +16,7 @@ gsap.registerPlugin(ScrollTrigger);
  */
 export function Contact() {
   const sectionRef = useRef<HTMLDivElement>(null);
-  const { progress, section: currentSection, getSectionProgress } = useScroll();
+  const { section: currentSection } = useScroll();
   const { diaryState, threeDEnabled } = usePortfolioStore();
   const { camera } = useThree();
   const { brassClick, inkScratch, success, emberWhoosh } = useAudio();
@@ -127,6 +128,7 @@ export function Contact() {
         position: 'relative',
         overflow: 'hidden',
       }}
+      aria-labelledby="contact-heading"
     >
       {/* 3D Background - Inkwell on Desk */}
       {threeDEnabled && diaryState === 'open' && (
@@ -562,13 +564,17 @@ export function Contact() {
                   gap: 'var(--space-3)',
                   transition: 'all var(--duration-fast) var(--ease-smooth)',
                 }}
-                whileHover={!submitted && {
-                  backgroundColor: 'var(--interactive-hover)',
-                  borderColor: 'var(--border-strong)',
-                  boxShadow: 'var(--shadow-glow-brass)',
-                  scale: 1.02,
-                }}
-                whileTap={!submitted && { scale: 0.98 }}
+                whileHover={
+                  !submitted
+                    ? {
+                        backgroundColor: 'var(--interactive-hover)',
+                        borderColor: 'var(--border-strong)',
+                        boxShadow: 'var(--shadow-glow-brass)',
+                        scale: 1.02,
+                      }
+                    : undefined
+                }
+                whileTap={!submitted ? { scale: 0.98 } : undefined}
               >
                 {submitted ? (
                   <>
@@ -580,15 +586,12 @@ export function Contact() {
                         border: '2px solid currentColor',
                         borderRightColor: 'transparent',
                         borderRadius: '50%',
-                        animation: 'spin 0.8s linear infinite',
                       }}
                       animate={{ rotate: 360 }}
                       transition={{ duration: 0.8, repeat: Infinity, ease: 'linear' }}
                     />
                     <span>Sending...</span>
-                    <style jsx>{`
-                      @keyframes spin { to { transform: rotate(360deg); } }
-                    `}</style>
+                    <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
                   </>
                 ) : (
                   <>
@@ -713,7 +716,7 @@ export function Contact() {
           zIndex: 20,
         }}
       >
-        {['hero', 'about', 'skills', 'projects', 'experience', 'contact'].map((s, i) => (
+        {['hero', 'about', 'skills', 'projects', 'experience', 'contact'].map((s) => (
           <motion.button
             key={s}
             className={`section-dot ${currentSection === s ? 'active' : ''}`}

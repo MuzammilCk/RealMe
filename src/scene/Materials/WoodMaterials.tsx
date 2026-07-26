@@ -12,6 +12,8 @@ export function WoodMaterial({
   metalness = 0.04,
   ...props
 }: MeshStandardMaterialProps) {
+  const colorValue = typeof color === 'string' ? color : '#4a2f1c';
+
   const map = useMemo(() => {
     const canvas = document.createElement('canvas');
     canvas.width = 1024;
@@ -19,7 +21,7 @@ export function WoodMaterial({
     const ctx = canvas.getContext('2d')!;
 
     // Base wood color
-    ctx.fillStyle = color;
+    ctx.fillStyle = colorValue;
     ctx.fillRect(0, 0, 1024, 1024);
 
     // Wood grain lines
@@ -63,7 +65,7 @@ export function WoodMaterial({
     tex.repeat.set(3, 1.5);
     tex.colorSpace = THREE.SRGBColorSpace;
     return tex;
-  }, [color]);
+  }, [colorValue]);
 
   const normalMap = useMemo(() => {
     const canvas = document.createElement('canvas');
@@ -225,7 +227,7 @@ export function DeskSurfaceMaterial() {
     return tex;
   }, []);
 
-  const normalMap = useTexture(() => {
+  const normalMap = useMemo(() => {
     const canvas = document.createElement('canvas');
     canvas.width = 1024;
     canvas.height = 512;

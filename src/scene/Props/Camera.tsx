@@ -1,7 +1,29 @@
+import { useRef } from 'react';
+import { useFrame } from '@react-three/fiber';
+import * as THREE from 'three';
+import { usePortfolioStore } from '../../store/usePortfolioStore';
+
 export default function Camera() {
+  const { reducedMotion } = usePortfolioStore();
+  const meshRef = useRef<THREE.Mesh>(null);
+  const clock = useRef(0);
+
+  useFrame((_, delta) => {
+    if (reducedMotion) return;
+    clock.current += delta;
+
+    if (meshRef.current) {
+      // Subtle breathing
+      meshRef.current.scale.setScalar(1 + Math.sin(clock.current * 0.4) * 0.005);
+    }
+  });
+
   return (
     <group position={[2.85, 0.1, 0.15]} rotation={[0, -0.5, 0]}>
-      <mesh castShadow>
+      <mesh
+        ref={meshRef}
+        castShadow
+      >
         <boxGeometry args={[0.34, 0.22, 0.16]} />
         <meshStandardMaterial color="#1c1c1c" roughness={0.5} metalness={0.3} />
       </mesh>

@@ -12,15 +12,17 @@ export default function Books() {
     () => BOOKS.map((b) => createBookSpineTexture(b.label)),
     []
   );
+
   let y = 0.075;
   return (
     <group position={[-2.5, 0, 1.3]}>
       {BOOKS.map((b, i) => {
         const h = 0.13;
+        const baseY = y;
         const el = (
           <mesh
             key={b.label}
-            position={[(Math.random() - 0.5) * 0.05, y, (Math.random() - 0.5) * 0.05]}
+            position={[(Math.random() - 0.5) * 0.05, baseY, (Math.random() - 0.5) * 0.05]}
             rotation={[0, (Math.random() - 0.5) * 0.08, 0]}
             castShadow
             receiveShadow

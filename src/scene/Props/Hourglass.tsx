@@ -1,7 +1,43 @@
+import { useRef } from 'react';
+import { useFrame } from '@react-three/fiber';
+import * as THREE from 'three';
+import { usePortfolioStore } from '../../store/usePortfolioStore';
+import { useKeyboardFocusable } from '../../scene/accessibility/KeyboardNavigation';
+
 export default function Hourglass() {
+  const { reducedMotion } = usePortfolioStore();
+  const meshRef = useRef<THREE.Mesh>(null);
+  const clock = useRef(0);
+
+  useFrame((_, delta) => {
+    if (reducedMotion) return;
+    clock.current += delta;
+
+    if (meshRef.current) {
+      // Subtle rotation
+      meshRef.current.rotation.y = Math.sin(clock.current * 0.3) * 0.1;
+    }
+  });
+
+  const handleActivate = () => {
+    window.open('https://github.com/MuzammilCk', '_blank');
+  };
+
+  useKeyboardFocusable(
+    'hourglass',
+    'Hourglass',
+    'Time flows, code grows',
+    new THREE.Vector3(-1.6, 0.24, -0.9),
+    handleActivate
+  );
+
   return (
     <group position={[-1.6, 0.16, -0.9]}>
-      <mesh position={[0, 0.24, 0]} rotation={[Math.PI, 0, 0]}>
+      <mesh
+        ref={meshRef}
+        position={[0, 0.24, 0]}
+        rotation={[Math.PI, 0, 0]}
+      >
         <coneGeometry args={[0.13, 0.22, 16]} />
         <meshStandardMaterial color="#cfd8dc" roughness={0.15} metalness={0.1} transparent opacity={0.35} />
       </mesh>

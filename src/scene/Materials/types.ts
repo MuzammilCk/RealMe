@@ -28,4 +28,5 @@ export interface WoodMaterialProps {
 }
 
 // Re-export MeshStandardMaterialProps from three
-export type MeshStandardMaterialProps = import('three').MeshStandardMaterialProps;
+import type { MeshStandardMaterialParameters as ThreeMeshStandardMaterialParams } from 'three';
+export type MeshStandardMaterialProps = ThreeMeshStandardMaterialParams;

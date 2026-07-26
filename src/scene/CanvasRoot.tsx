@@ -28,6 +28,7 @@ export default function CanvasRoot() {
   const openDiary = usePortfolioStore((s) => s.openDiary);
   const diaryState = usePortfolioStore((s) => s.diaryState);
   const deviceTier = usePortfolioStore((s) => s.deviceTier);
+  const isMobile = usePortfolioStore((s) => s.isMobile);
   const [dimmed, setDimmed] = useState(false);
 
   // Dim the scene once the diary is opening/open so parchment overlay pops
@@ -36,17 +37,21 @@ export default function CanvasRoot() {
     setDimmed(openish);
   }, [openish]);
 
-  // Post-processing only on tier 3 (high-end)
-  const enablePostProcessing = deviceTier === 3;
+  // Post-processing only on tier 3 (high-end) and not mobile
+  const enablePostProcessing = deviceTier === 3 && !isMobile;
+
+  // Reduced particle counts for mobile
+  const dustMoteCount = isMobile ? 40 : deviceTier === 3 ? 120 : deviceTier === 2 ? 60 : 20;
+  const emberCount = isMobile ? 0 : deviceTier === 3 ? 140 : deviceTier === 2 ? 70 : 0;
 
   return (
     <div className={`canvas-root${dimmed ? ' dimmed' : ''}`}>
       <Canvas
         shadows
-        dpr={[1, 2]}
+        dpr={isMobile ? [1, 1.5] : [1, 2]}
         camera={{ fov: 38, position: [0, 4.0, 6.4], near: 0.1, far: 100 }}
         gl={{
-          antialias: true,
+          antialias: !isMobile,
           toneMapping: THREE.ACESFilmicToneMapping,
           toneMappingExposure: 1.0,
           logarithmicDepthBuffer: true,
@@ -59,11 +64,11 @@ export default function CanvasRoot() {
         {/* Scene background and fog - warm ember-tinted void */}
         <SceneFog />
 
-        {/* HDRI Environment for realistic reflections (tier 2+) */}
-        <HDRIEnvironment />
+        {/* HDRI Environment for realistic reflections (tier 2+, not mobile) */}
+        {!isMobile && deviceTier >= 2 && <HDRIEnvironment />}
 
-        {/* Procedural fallback for tier 1 */}
-        <ProceduralEnvironment />
+        {/* Procedural fallback for tier 1 or mobile */}
+        {(isMobile || deviceTier === 1) && <ProceduralEnvironment />}
 
         {/* Professional Lighting Rig */}
         <LightRig />
@@ -75,20 +80,20 @@ export default function CanvasRoot() {
         <Table />
         <Diary coverPivotRef={coverPivotRef} onBegin={openDiary} />
         <Lamp lightRef={lampLightRef} />
-        <Globe />
+        {!isMobile && <Globe />}
         <Books />
         <Mug />
         <Hourglass />
-        <Camera />
+        {!isMobile && <Camera />}
         <Plant />
         <Nameplate />
         <StickyNotes />
 
         {/* === ATMOSPHERIC EFFECTS === */}
-        <DustMotes count={120} />
-        {/* Embers rise from the lamp bulb — fewer on low tiers */}
-        <EmberFloat count={deviceTier >= 3 ? 140 : deviceTier === 2 ? 70 : 0} />
-        <VolumetricLight lightRef={lampLightRef} />
+        <DustMotes count={dustMoteCount} />
+        {/* Embers rise from the lamp bulb — fewer on low tiers, none on mobile */}
+        <EmberFloat count={emberCount} />
+        {!isMobile && <VolumetricLight lightRef={lampLightRef} />}
 
         <CameraRig coverPivotRef={coverPivotRef} lampLightRef={lampLightRef} />
       </Canvas>

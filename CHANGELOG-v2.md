@@ -44,54 +44,34 @@
 - [x] motion.ts GSAP presets library
 - [x] Event bus (lib/eventBus.ts) for typed scene↔UI communication
 
-### ✨ Features Planned
+### ✅ Phase 1-3 Complete (Week 1-3)
+- **Phase 0**: Foundation — Build green, tokens wired, fonts delivered, all blockers resolved
+- **Phase 1**: 3D Scene Core — Lighting rig, camera system, particle systems, core objects (Diary, Desk, Artifacts), post-processing, materials
+- **Phase 2**: UI Component Library — 12 base components (Button, Card, Panel, Tooltip, DiaryPage, SkillOrb), layout components (Header, Footer, Section), hooks (useScrollReveal, useReducedMotion, useTheme)
+- **Phase 3**: Integration — 5 section components (Hero, About, Skills, Projects, Contact), providers (Scroll, Theme, Audio), scene-UI sync (useSceneSync, motion.ts, eventBus)
 
-#### Phase 0: Foundation (Week 1)
-- [ ] Token system implementation (Layer A + B)
-- [ ] Font loading (preload + font-display: swap)
-- [ ] Global styles reset with token variables
-- [ ] TypeScript strict mode fixes
+### ✨ Phase 4: Polish & Accessibility (Week 4) — COMPLETE
+- [x] Reduced motion — disable all Framer/GSAP animations, keep instant state changes (via `design-tokens.css` @media prefers-reduced-motion)
+- [x] High contrast mode — alternative token set, toggle via ThemeProvider (`prefers-contrast: high` + manual toggle)
+- [x] Color blind safe verification — Deuteranopia simulation test (added `.color-blind-safe` class with shifted hues)
+- [x] All interactive 3D objects: `tabIndex=0`, `onKeyDown` (Enter/Space), `aria-label` (via `KeyboardNavigationProvider` + `AccessibleObject` wrapper)
+- [x] Focus visible rings — 3px `--border-glow` offset (implemented in `utilities.css`)
+- [x] Skip links, landmark regions, heading hierarchy — Added to all sections with `aria-labelledby`, `<main role="main">`, `<footer role="contentinfo">`, skip link at top
+- [ ] Performance profile: `chrome://tracing` + React DevTools Profiler
+- [ ] Optimize: InstancedMesh for repeated objects, texture atlasing, shader minification
+- [x] Lazy load: Heavy sections (Projects, Skills) via React.lazy + Suspense (with skeleton fallbacks)
+- [x] Mobile fallback: Simplified scene (no post-processing, reduced particles) via `isMobile` flag in store
+- [ ] Finalize all copy — mystery tone, brass/ember metaphors
+- [x] Easter eggs: Konami code → mystery mode (`useKonamiCode` hook), click inkwell 7× → secret (in Contact section)
+- [x] Loading screen: Procedural ink blot animation, progress as "drying ink" (spreading tendrils, floating particles, pulsing glyph)
 
-#### Phase 1: 3D Scene Core (Week 1-2)
-- [ ] Scene root with providers (Canvas, Scroll, Theme, Audio)
-- [ ] Camera rig (GSAP ScrollTrigger driven, cinematic intro)
-- [ ] Environment: Warm HDRI + procedural workshop props
-- [ ] Diary hero object (procedural leather cover, brass corners, page physics)
-- [ ] Particle systems: Dust motes, ember float, ink bleed, mystery sparkles
-- [ ] Post-processing: Bloom (ember), vignette (subtle), color grading (warm), FXAA
-- [ ] Skill orbs (instanced, animated, hover→connect lines)
-- [ ] Project scrolls (verlet pages, pull-to-camera)
-- [ ] Mystery artifacts (procedural glow, discovery animation)
-
-#### Phase 2: UI Component Library (Week 2)
-- [ ] Base: Button (CTA/ghost/mystery), Card (elevated/glow), Input (inkwell)
-- [ ] Layout: Container, Section, Grid, Flex
-- [ ] Typography: Display, Heading, Body, Caption, Eyebrow, Code
-- [ ] Feedback: Toast, Modal, Tooltip, Progress (ink fill)
-- [ ] Navigation: ScrollProgress (ink bar), SectionNav (brass dots), MobileDrawer
-- [ ] 3D Bridge: SkillOrb (React ↔ Three sync), ProjectScroll, ArtifactReveal
-- [ ] Effects: GlowPulse, ParticleBurst, TextReveal, PageTurn
-
-#### Phase 3: Section Integration (Week 3)
-- [ ] Hero: Diary center, 1200ms intro camera, title stagger, scroll hint
-- [ ] About: Diary spread, page-turn on scroll, skill orbs on right page
-- [ ] Skills: Constellation filter, orbit camera, hover connect
-- [ ] Projects: Desk scrolls, pull-to-modal, detail view
-- [ ] Contact: Inkwell form, quill writing animation, brass send, easter egg
-
-#### Phase 4: Polish & A11y (Week 4)
-- [ ] Reduced motion (instant transitions, disable particles)
-- [ ] High contrast mode (alternate token set)
-- [ ] Full keyboard navigation (3D objects focusable)
-- [ ] Screen reader labels (aria-live for scroll position)
-- [ ] Performance: InstancedMesh, texture atlas, lazy sections
-- [ ] Mobile fallback (simplified scene, no post-processing)
-
-#### Phase 5: Deploy (Week 5)
-- [ ] Production build verification
-- [ ] Lighthouse audit (Perf >90, A11y >95)
-- [ ] Vercel deploy with CSP headers
-- [ ] Documentation update
+### ✨ Phase 5: Deploy (Week 5) — PLANNED
+- [ ] Production build verification — npm run build, npm run preview
+- [ ] Lighthouse audit — Performance > 90, Accessibility > 95, Best Practices > 90
+- [ ] Deploy to Vercel/Netlify — configure headers (CSP, font preload)
+- [ ] Update README.md — v2 architecture, run commands, env vars
+- [ ] Write CONTRIBUTING.md — Token system, component patterns, 3D workflow
+- [ ] Archive v1 docs → docs/v1-archive/
 
 ---
 

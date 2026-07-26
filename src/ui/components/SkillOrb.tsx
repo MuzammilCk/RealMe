@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { forwardRef, useRef, useEffect, useState, type ReactNode, type ForwardedRef } from 'react';
 import * as THREE from 'three';
 import { usePortfolioStore } from '../../../store/usePortfolioStore';
-import { SkillOrbSystem, SkillOrbData } from '../../../scene/Props/SkillOrbSystem';
+import { SkillOrbData } from '@scene/Props/SkillOrbSystem';
 
 /**
  * SkillOrb - 3D sphere embedded in UI via Canvas portal

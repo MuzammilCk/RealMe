@@ -1,7 +1,6 @@
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import * as THREE from 'three';
-import { type Variants, type Transition } from 'framer-motion';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -262,9 +261,9 @@ export function textReveal(
  * Scroll-triggered reveal - For sections entering viewport
  */
 export function scrollReveal(
-  elements: gsap.TweenTarget,
+  elements: gsap.TweenTarget | Element | string,
   options: {
-    trigger?: gsap.TweenTarget;
+    trigger?: Element | string;
     start?: string;
     end?: string;
     scrub?: boolean | number;
@@ -290,7 +289,7 @@ export function scrollReveal(
       delay: options.delay ?? 0,
       stagger: options.stagger ?? 0,
       scrollTrigger: {
-        trigger: options.trigger ?? elements,
+        trigger: options.trigger ?? (typeof elements === 'string' ? elements : undefined),
         start: options.start ?? 'top 80%',
         end: options.end ?? 'bottom 20%',
         scrub: options.scrub ?? false,
@@ -305,8 +304,8 @@ export function scrollReveal(
  * Parallax scroll - Element moves at different speed than scroll
  */
 export function parallaxScroll(
-  elements: gsap.TweenTarget,
-  options: { speed?: number; trigger?: gsap.TweenTarget; start?: string; end?: string } = {}
+  elements: Element | string,
+  options: { speed?: number; trigger?: Element | string; start?: string; end?: string } = {}
 ) {
   return gsap.to(elements, {
     yPercent: -50 * (options.speed ?? 0.5),
@@ -395,9 +394,9 @@ export function createSequence() {
  */
 export function heroIntroSequence(
   elements: {
-    title: gsap.TweenTarget;
-    subtitle: gsap.TweenTarget;
-    scrollHint: gsap.TweenTarget;
+    title: Element | string;
+    subtitle: Element | string;
+    scrollHint: Element | string;
     diary: THREE.Object3D;
   },
   camera: THREE.Camera
@@ -444,10 +443,7 @@ export function heroIntroSequence(
   // Gentle camera idle drift starts after intro
   tl.call(() => {
     // CameraRig will handle idle drift
-  }, null, 1.2);
+  }, [], 1.2);
 
   return tl;
 }
-
-// Import THREE for types
-import * as THREE from 'three';

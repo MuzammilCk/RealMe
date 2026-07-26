@@ -9,50 +9,77 @@
 
 :root {
   /* ========================================================================
-     COLOR PRIMITIVES (OKLCH)
+     COLOR PRIMITIVES (OKLCH with RGB fallbacks)
      Format: oklch(L C H) — perceptually uniform, wide-gamut ready
+     Fallbacks: hex RGB for browsers without OKLCH support
      ======================================================================== */
 
   /* --- Void (deep shadows, near-black with blue bias) --- */
+  --void-950: #0a0602;
   --void-950: oklch(0.08 0.005 240);
+  --void-900: #100a04;
   --void-900: oklch(0.12 0.008 240);
+  --void-800: #1e1208;
   --void-800: oklch(0.18 0.01 240);
 
   /* --- Walnut (warm wood tones) --- */
+  --walnut-900: #1f140a;
   --walnut-900: oklch(0.15 0.04 35);
+  --walnut-700: #3a2614;
   --walnut-700: oklch(0.28 0.06 35);
+  --walnut-500: #6b4f2c;
   --walnut-500: oklch(0.45 0.08 35);
 
   /* --- Leather (aged, worn) --- */
+  --leather-900: #231810;
   --leather-900: oklch(0.18 0.03 25);
+  --leather-700: #423022;
   --leather-700: oklch(0.32 0.05 25);
+  --leather-500: #7a5c4a;
   --leather-500: oklch(0.52 0.07 25);
 
   /* --- Brass (oxidized to gleaming) --- */
+  --brass-900: #4a3a1a;
   --brass-900: oklch(0.35 0.08 75);
+  --brass-700: #7a6222;
   --brass-700: oklch(0.52 0.12 75);
+  --brass-500: #c9a15c;
   --brass-500: oklch(0.72 0.14 85);
+  --brass-300: #e8d4a8;
   --brass-300: oklch(0.88 0.1 90);
 
   /* --- Parchment (aged paper, ink) --- */
+  --parchment-900: #4d4234;
   --parchment-900: oklch(0.35 0.02 45);
+  --parchment-700: #7a7060;
   --parchment-700: oklch(0.55 0.03 45);
+  --parchment-500: #b8b0a0;
   --parchment-500: oklch(0.75 0.04 50);
+  --parchment-300: #ebe0c8;
   --parchment-300: oklch(0.92 0.03 55);
 
   /* --- Ember (warm glow, fire) --- */
+  --ember-500: #c96b2a;
   --ember-500: oklch(0.62 0.18 40);
+  --ember-400: #d9964a;
   --ember-400: oklch(0.75 0.16 45);
+  --ember-300: #e8c48a;
   --ember-300: oklch(0.88 0.12 50);
 
   /* --- Mystery (amethyst, magical) --- */
+  --mystery-500: #6d5a8a;
   --mystery-500: oklch(0.48 0.15 285);
+  --mystery-400: #967ec9;
   --mystery-400: oklch(0.62 0.18 285);
+  --mystery-300: #c4b0dc;
   --mystery-300: oklch(0.78 0.14 285);
 
   /* --- Teal (verdigris, oxidized copper) --- */
+  --teal-500: #4a8a8a;
   --teal-500: oklch(0.52 0.12 185);
+  --teal-400: #7ac4c4;
   --teal-400: oklch(0.68 0.14 185);
+  --teal-300: #b0e0e0;
   --teal-300: oklch(0.82 0.1 185);
 
   /* ========================================================================
@@ -279,6 +306,51 @@
 }
 
 /* ==========================================================================
+   COLOR BLIND SAFE MODE — Deuteranopia (red-green) safe palette
+   ========================================================================== */
+.color-blind-safe {
+  /* Brass (gold/copper) → more distinct from ember (orange/red) for deuteranopia */
+  --brass-900: oklch(0.35 0.08 65);    /* Shift hue toward yellow-green */
+  --brass-700: oklch(0.52 0.12 70);    /* Warmer gold, less red */
+  --brass-500: oklch(0.72 0.14 75);    /* Clear yellow-gold */
+  --brass-300: oklch(0.88 0.1 80);     /* Pale gold */
+
+  /* Ember (orange/red) → shift toward orange-yellow, away from red */
+  --ember-500: oklch(0.62 0.18 35);    /* Orange-yellow, less red */
+  --ember-400: oklch(0.75 0.16 40);    /* Bright orange-yellow */
+  --ember-300: oklch(0.88 0.12 45);    /* Pale orange-yellow */
+
+  /* Mystery (amethyst/purple) → shift toward blue-purple, distinguishable from brass/ember */
+  --mystery-500: oklch(0.48 0.15 275); /* Blue-purple */
+  --mystery-400: oklch(0.62 0.18 275); /* Bright blue-purple */
+  --mystery-300: oklch(0.78 0.14 275); /* Light blue-purple */
+
+  /* Teal (verdigris) → keep distinct, shift slightly more blue */
+  --teal-500: oklch(0.52 0.12 175);    /* Blue-teal */
+  --teal-400: oklch(0.68 0.14 175);    /* Bright blue-teal */
+  --teal-300: oklch(0.82 0.1 175);     /* Light blue-teal */
+
+  /* Semantic mappings updated for color-blind safety */
+  --text-accent: var(--brass-500);
+  --text-mystery: var(--mystery-400);
+  --text-teal: var(--teal-400);
+  --border-glow: var(--ember-400);
+  --interactive-default: var(--brass-700);
+  --interactive-hover: var(--brass-500);
+  --interactive-glow: var(--ember-400);
+  --interactive-mystery: var(--mystery-400);
+  --glow-ember: var(--ember-400);
+  --glow-mystery: var(--mystery-400);
+  --glow-teal: var(--teal-400);
+  --glow-brass: var(--brass-300);
+
+  /* Ensure high contrast for text */
+  --text-primary: var(--parchment-700);
+  --text-secondary: var(--parchment-500);
+  --text-muted: oklch(0.75 0.04 50 / 0.85);
+}
+
+/* ==========================================================================
    HIGH CONTRAST MODE — Accessibility
    ========================================================================== */
 @media (prefers-contrast: high) {
@@ -292,6 +364,52 @@
     --shadow-2: var(--shadow-3);
     --shadow-3: var(--shadow-4);
   }
+}
+
+/* ==========================================================================
+   COLOR BLIND SAFE MODE — Deuteranopia (red-green) simulation
+   ========================================================================== */
+
+/* Manual toggle via .color-blind-safe class on <html> */
+.color-blind-safe {
+  /*
+     Deuteranopia-safe adjustments:
+     - Brass (yellow-orange) shifts toward more distinct amber
+     - Ember (orange-red) shifts toward distinct warm amber (avoiding red confusion)
+     - Mystery (purple/amethyst) remains distinct - already good for deuteranopes
+     - Teal (blue-green) shifts toward more distinct blue-cyan (avoiding green confusion)
+     - Ensure text/background contrast remains high
+  */
+
+  /* Brass -> More distinct amber/gold (remains distinguishable) */
+  --brass-900: oklch(0.38 0.10 70);
+  --brass-700: oklch(0.55 0.15 70);
+  --brass-500: oklch(0.75 0.16 75);
+  --brass-300: oklch(0.90 0.12 80);
+
+  /* Ember -> Shift away from red toward distinct warm amber */
+  --ember-500: oklch(0.65 0.18 50);
+  --ember-400: oklch(0.78 0.16 55);
+  --ember-300: oklch(0.90 0.12 60);
+
+  /* Mystery (amethyst) -> Keep but ensure blue-purple distinction */
+  --mystery-500: oklch(0.50 0.18 275);
+  --mystery-400: oklch(0.65 0.20 275);
+  --mystery-300: oklch(0.80 0.15 280);
+
+  /* Teal (verdigris) -> Shift toward distinct cyan/blue (avoid green confusion) */
+  --teal-500: oklch(0.55 0.15 200);
+  --teal-400: oklch(0.70 0.16 200);
+  --teal-300: oklch(0.85 0.12 205);
+
+  /* Semantic mappings update automatically via Layer B references */
+
+  /* Boost contrast for text */
+  --text-secondary: var(--parchment-700);
+  --text-muted: oklch(0.75 0.04 50 / 0.9);
+  --border-subtle: var(--brass-700);
+  --border-default: var(--brass-500);
+  --border-strong: var(--brass-300);
 }
 
 /* ==========================================================================

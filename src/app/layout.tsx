@@ -1,15 +1,72 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, lazy, Suspense } from 'react';
 import { motion } from 'framer-motion';
 import { ScrollProvider } from './providers/ScrollProvider';
 import { ThemeProvider } from './providers/ThemeProvider';
 import { AudioProvider, useAudio } from './providers/AudioProvider';
 import { usePortfolioStore } from '../store/usePortfolioStore';
+
+// Lazy load heavy sections
+const Skills = lazy(() => import('./sections/Skills'));
+const Projects = lazy(() => import('./sections/Projects'));
 import Hero from './sections/Hero';
 import About from './sections/About';
-import Skills from './sections/Skills';
-import Projects from './sections/Projects';
 import Experience from './sections/Experience';
 import Contact from './sections/Contact';
+
+/**
+ * Skeleton fallback for lazy-loaded sections
+ */
+function SectionSkeleton() {
+  return (
+    <motion.div
+      style={{
+        minHeight: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        gap: 'var(--space-6)',
+        padding: 'var(--space-16) var(--space-6)',
+      }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.3 }}
+    >
+      <motion.div
+        style={{
+          width: '60%',
+          maxWidth: '600px',
+          height: '4px',
+          background: 'var(--border-subtle)',
+          borderRadius: 'var(--radius-full)',
+          overflow: 'hidden',
+        }}
+        animate={{ scaleX: [0, 1, 0] }}
+        transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
+      >
+        <motion.div
+          style={{
+            width: '100%',
+            height: '100%',
+            background: 'linear-gradient(90deg, var(--interactive-default), var(--interactive-hover), var(--glow-ember))',
+            transformOrigin: 'left center',
+          }}
+          animate={{ scaleX: [0, 1] }}
+          transition={{ duration: 1.5, repeat: Infinity, ease: 'linear' }}
+        />
+      </motion.div>
+      <p style={{
+        fontFamily: 'var(--font-caption)',
+        fontSize: 'var(--text-xs)',
+        color: 'var(--text-muted)',
+        letterSpacing: 'var(--tracking-wider)',
+        textTransform: 'uppercase',
+      }}>
+        Loading section...
+      </p>
+    </motion.div>
+  );
+}
 
 /**
  * App Layout - Orchestrates providers and sections
@@ -80,32 +137,36 @@ export default function AppLayout() {
             {/* Main content */}
             <main id="main-content" style={{ position: 'relative' }}>
               {/* Hero Section */}
-              <section id="hero" style={{ position: 'relative' }}>
+              <section id="hero" aria-labelledby="hero-title" style={{ position: 'relative' }}>
                 <Hero />
               </section>
 
               {/* About Section */}
-              <section id="about" style={{ position: 'relative' }}>
+              <section id="about" aria-labelledby="about-heading" style={{ position: 'relative' }}>
                 <About />
               </section>
 
               {/* Skills Section */}
-              <section id="skills" style={{ position: 'relative' }}>
-                <Skills />
+              <section id="skills" aria-labelledby="skills-heading" style={{ position: 'relative' }}>
+                <Suspense fallback={<SectionSkeleton />}>
+                  <Skills />
+                </Suspense>
               </section>
 
               {/* Projects Section */}
-              <section id="projects" style={{ position: 'relative' }}>
-                <Projects />
+              <section id="projects" aria-labelledby="projects-heading" style={{ position: 'relative' }}>
+                <Suspense fallback={<SectionSkeleton />}>
+                  <Projects />
+                </Suspense>
               </section>
 
               {/* Experience Section */}
-              <section id="experience" style={{ position: 'relative' }}>
+              <section id="experience" aria-labelledby="experience-heading" style={{ position: 'relative' }}>
                 <Experience />
               </section>
 
               {/* Contact Section */}
-              <section id="contact" style={{ position: 'relative' }}>
+              <section id="contact" aria-labelledby="contact-heading" style={{ position: 'relative' }}>
                 <Contact />
               </section>
             </main>

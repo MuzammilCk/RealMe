@@ -12,6 +12,7 @@ interface PortfolioStore {
   deviceTier: DeviceTier;
   reducedMotion: boolean;
   threeDEnabled: boolean; // false => Layer B only, no Canvas mounted
+  isMobile: boolean;
 
   // ---- actions (bridge used by BOTH layers) ----
   openDiary: () => void;
@@ -22,6 +23,7 @@ interface PortfolioStore {
   setDeviceTier: (t: DeviceTier) => void;
   setReducedMotion: (v: boolean) => void;
   setThreeDEnabled: (v: boolean) => void;
+  setIsMobile: (v: boolean) => void;
 
   // ---- internal: the CameraRig finalizes the physical open/close here ----
   _setDiaryState: (s: DiaryState) => void;
@@ -34,6 +36,7 @@ export const usePortfolioStore = create<PortfolioStore>((set, get) => ({
   deviceTier: 3,
   reducedMotion: false,
   threeDEnabled: false,
+  isMobile: false,
 
   openDiary: () => {
     if (get().diaryState !== 'closed') return;
@@ -62,6 +65,7 @@ export const usePortfolioStore = create<PortfolioStore>((set, get) => ({
   setDeviceTier: (t) => set({ deviceTier: t }),
   setReducedMotion: (v) => set({ reducedMotion: v }),
   setThreeDEnabled: (v) => set({ threeDEnabled: v }),
+  setIsMobile: (v) => set({ isMobile: v }),
 
   _setDiaryState: (s) => set({ diaryState: s }),
 }));

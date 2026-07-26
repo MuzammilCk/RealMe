@@ -533,3 +533,105 @@
   .break-before { break-before: always; }
   .break-after { break-after: always; }
 }
+
+/* ==========================================================================
+   ACCESSIBILITY UTILITIES
+   ========================================================================== */
+
+/* Focus visible - 3px --border-glow offset as per ARCHITECTURE-v2.md §10 */
+:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--border-glow) !important;
+  border-radius: var(--radius-sm);
+}
+
+/* Skip link - visible on focus */
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: var(--space-3) var(--space-6);
+  background: var(--interactive-default);
+  color: var(--text-inverse);
+  font-family: var(--font-caption);
+  font-weight: 500;
+  border-radius: var(--radius-md);
+  z-index: var(--z-max);
+  transition: top var(--duration-fast) var(--ease-smooth);
+}
+
+.skip-link:focus {
+  top: var(--space-4);
+}
+
+/* Reduced motion - respect user preference */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* High contrast mode - increase borders and contrast */
+@media (prefers-contrast: more) {
+  :root {
+    --border-subtle: var(--border-strong);
+    --border-default: var(--border-strong);
+    --text-secondary: var(--text-primary);
+    --text-muted: var(--text-secondary);
+    --shadow-1: var(--shadow-2);
+    --shadow-2: var(--shadow-3);
+    --shadow-3: var(--shadow-4);
+  }
+
+  .card-base,
+  .card-elevated,
+  .card-glass {
+    border-width: 2px;
+  }
+
+  .btn-base {
+    border-width: 2px;
+  }
+
+  .input-base {
+    border-width: 2px;
+  }
+}
+
+/* Screen reader only */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Landmark regions - ensure proper structure */
+main[role="main"],
+section[aria-labelledby],
+nav[aria-label],
+header[role="banner"],
+footer[role="contentinfo"] {
+  /* These elements should have proper ARIA labels */
+}
+
+/* Heading hierarchy helper */
+h1:not([aria-level]),
+h2:not([aria-level]),
+h3:not([aria-level]),
+h4:not([aria-level]),
+h5:not([aria-level]),
+h6:not([aria-level]) {
+  /* Headings should have proper hierarchy */
+}
