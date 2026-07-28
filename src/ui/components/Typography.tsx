@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { forwardRef, type ReactNode, type HTMLAttributes } from 'react';
+import { type ReactNode, type HTMLAttributes } from 'react';
 
 /**
  * Typography Components - Using locked font families and scales
@@ -9,14 +9,13 @@ import { forwardRef, type ReactNode, type HTMLAttributes } from 'react';
 /**
  * Display - Large titles (Cinzel Decorative)
  */
-export interface DisplayProps extends Omit<HTMLAttributes<HTMLHeadingElement>, 'as'> {
+export interface DisplayProps extends Omit<HTMLAttributes<HTMLHeadingElement>, 'as' | 'onAnimationStart' | 'onAnimationEnd' | 'onAnimationIteration' | 'onTransitionEnd'> {
   children: ReactNode;
   level?: 1 | 2 | 3;
   weight?: 400 | 700 | 900;
 }
 
 export function Display({ children, level = 1, weight = 700, className = '', style = {}, ...props }: DisplayProps) {
-  const Tag = `h${level}` as keyof React.ReactHTML;
   return (
     <motion.h1
       style={{
@@ -28,12 +27,12 @@ export function Display({ children, level = 1, weight = 700, className = '', sty
         color: 'var(--text-primary)',
         margin: 0,
         ...style,
-      }}
+      } as any}
       className={className}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, ease: [0.34, 1.56, 0.64, 1] }}
-      {...props}
+      {...props as any}
     >
       {children}
     </motion.h1>
@@ -43,14 +42,13 @@ export function Display({ children, level = 1, weight = 700, className = '', sty
 /**
  * Heading - Section headings (Cinzel)
  */
-export interface HeadingProps extends Omit<HTMLAttributes<HTMLHeadingElement>, 'as'> {
+export interface HeadingProps extends Omit<HTMLAttributes<HTMLHeadingElement>, 'as' | 'onAnimationStart' | 'onAnimationEnd' | 'onAnimationIteration' | 'onTransitionEnd'> {
   children: ReactNode;
   level?: 1 | 2 | 3 | 4;
   weight?: 400 | 600 | 700;
 }
 
 export function Heading({ children, level = 2, weight = 600, className = '', style = {}, ...props }: HeadingProps) {
-  const Tag = `h${level}` as keyof React.ReactHTML;
   return (
     <motion.h2
       style={{
@@ -62,12 +60,12 @@ export function Heading({ children, level = 2, weight = 600, className = '', sty
         color: 'var(--text-primary)',
         margin: 0,
         ...style,
-      }}
+      } as any}
       className={className}
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, ease: [0.34, 1.56, 0.64, 1] }}
-      {...props}
+      {...props as any}
     >
       {children}
     </motion.h2>
@@ -77,7 +75,7 @@ export function Heading({ children, level = 2, weight = 600, className = '', sty
 /**
  * Subheading / Eyebrow - Small uppercase labels (IM Fell English SC)
  */
-export interface SubheadingProps extends HTMLAttributes<HTMLDivElement> {
+export interface SubheadingProps extends Omit<HTMLAttributes<HTMLDivElement>, 'onAnimationStart' | 'onAnimationEnd' | 'onAnimationIteration' | 'onTransitionEnd'> {
   children: ReactNode;
   /** Accent color */
   accent?: 'brass' | 'mystery' | 'teal' | 'ember';
@@ -107,7 +105,7 @@ export function Subheading({ children, accent = 'brass', className = '', style =
       initial={{ opacity: 0, x: -10 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
-      {...props}
+      {...props as any}
     >
       {children}
     </motion.div>
@@ -117,7 +115,7 @@ export function Subheading({ children, accent = 'brass', className = '', style =
 /**
  * Body - Main text content (Crimson Pro)
  */
-export interface BodyProps extends HTMLAttributes<HTMLParagraphElement> {
+export interface BodyProps extends Omit<HTMLAttributes<HTMLParagraphElement>, 'onAnimationStart' | 'onAnimationEnd' | 'onAnimationIteration' | 'onTransitionEnd'> {
   children: ReactNode;
   size?: 'sm' | 'md' | 'lg';
   weight?: 400 | 500 | 600 | 700;
@@ -148,7 +146,7 @@ export function Body({ children, size = 'md', weight = 400, muted = false, lead 
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
-      {...props}
+      {...props as any}
     >
       {children}
     </motion.p>
@@ -158,7 +156,7 @@ export function Body({ children, size = 'md', weight = 400, muted = false, lead 
 /**
  * Caption / Label - Small UI text (IBM Plex Sans)
  */
-export interface CaptionProps extends HTMLAttributes<HTMLSpanElement> {
+export interface CaptionProps extends Omit<HTMLAttributes<HTMLSpanElement>, 'onAnimationStart' | 'onAnimationEnd' | 'onAnimationIteration' | 'onTransitionEnd'> {
   children: ReactNode;
   weight?: 400 | 500 | 600;
   uppercase?: boolean;
@@ -188,7 +186,7 @@ export function Caption({ children, weight = 400, uppercase = true, className = 
 /**
  * Code - Monospace code text (JetBrains Mono)
  */
-export interface CodeProps extends HTMLAttributes<HTMLElement> {
+export interface CodeProps extends Omit<HTMLAttributes<HTMLElement>, 'onAnimationStart' | 'onAnimationEnd' | 'onAnimationIteration' | 'onTransitionEnd'> {
   children: ReactNode;
   inline?: boolean;
 }
@@ -239,7 +237,7 @@ export function Code({ children, inline = true, className = '', style = {}, ...p
 /**
  * Blockquote - Styled quotation
  */
-export interface BlockquoteProps extends HTMLAttributes<HTMLQuoteElement> {
+export interface BlockquoteProps extends Omit<HTMLAttributes<HTMLQuoteElement>, 'onAnimationStart' | 'onAnimationEnd' | 'onAnimationIteration' | 'onTransitionEnd'> {
   children: ReactNode;
   cite?: string;
 }
@@ -278,7 +276,7 @@ export function Blockquote({ children, cite, className = '', style = {}, ...prop
 /**
  * Text Reveal - Animated text reveal by word/character
  */
-export interface TextRevealProps extends HTMLAttributes<HTMLDivElement> {
+export interface TextRevealProps extends Omit<HTMLAttributes<HTMLDivElement>, 'onAnimationStart' | 'onAnimationEnd' | 'onAnimationIteration' | 'onTransitionEnd'> {
   children: ReactNode;
   /** Reveal by: 'word' | 'char' | 'line' */
   split?: 'word' | 'char' | 'line';

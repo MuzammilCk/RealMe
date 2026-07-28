@@ -1,5 +1,4 @@
 import { lazy, Suspense, useRef, useEffect, useState, type ComponentType } from 'react';
-import { motion } from 'framer-motion';
 
 /**
  * Lazy-loaded section wrapper with suspense fallback
@@ -53,61 +52,6 @@ export function LazySection({
         {children}
       </Suspense>
     </div>
-  );
-}
-
-/**
- * Skeleton placeholder for section loading
- */
-function SectionSkeleton() {
-  return (
-    <motion.div
-      style={{
-        minHeight: '100vh',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'center',
-        gap: 'var(--space-6)',
-        padding: 'var(--space-16) var(--space-6)',
-      }}
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.3 }}
-    >
-      <motion.div
-        style={{
-          width: '60%',
-          maxWidth: '600px',
-          height: '4px',
-          background: 'var(--border-subtle)',
-          borderRadius: 'var(--radius-full)',
-          overflow: 'hidden',
-        }}
-        animate={{ scaleX: [0, 1, 0] }}
-        transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
-      >
-        <motion.div
-          style={{
-            width: '100%',
-            height: '100%',
-            background: 'linear-gradient(90deg, var(--interactive-default), var(--interactive-hover), var(--glow-ember))',
-            transformOrigin: 'left center',
-          }}
-          animate={{ scaleX: [0, 1] }}
-          transition={{ duration: 1.5, repeat: Infinity, ease: 'linear' }}
-        />
-      </motion.div>
-      <p style={{
-        fontFamily: 'var(--font-caption)',
-        fontSize: 'var(--text-xs)',
-        color: 'var(--text-muted)',
-        letterSpacing: 'var(--tracking-wider)',
-        textTransform: 'uppercase',
-      }}>
-        Loading section...
-      </p>
-    </motion.div>
   );
 }
 

@@ -2,6 +2,7 @@ import { useRef, useEffect, useState, useCallback, createContext, useContext } f
 import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import { usePortfolioStore } from '../../store/usePortfolioStore';
+import { EMBER } from '../colors';
 
 /**
  * 3D Keyboard Navigation System
@@ -242,9 +243,9 @@ function FocusRing({
         height: 48,
         pointerEvents: 'none',
         zIndex: 9999,
-        border: '3px solid var(--border-glow, #ff9d52)',
+        border: `3px solid var(--border-glow, ${EMBER[400]})`,
         borderRadius: '50%',
-        boxShadow: '0 0 20px -4px var(--border-glow, #ff9d52), 0 0 40px -8px var(--border-glow, #ff9d52)',
+        boxShadow: `0 0 20px -4px var(--border-glow, ${EMBER[400]}), 0 0 40px -8px var(--border-glow, ${EMBER[400]})`,
         animation: 'pulse-ring 2s ease-in-out infinite',
       }}
     >

@@ -1,8 +1,8 @@
 import { createContext, useContext, useEffect, useState, useCallback, type ReactNode } from 'react';
 
-type ThemeMode = 'warm' | 'cool' | 'auto';
+export type ThemeMode = 'warm' | 'cool' | 'auto';
 
-interface ThemeContextValue {
+export interface ThemeContextValue {
   mode: ThemeMode;
   setMode: (mode: ThemeMode) => void;
   resolvedTheme: 'warm' | 'cool';
@@ -13,7 +13,7 @@ interface ThemeContextValue {
   toggleColorBlindSafe: () => void;
 }
 
-const ThemeContext = createContext<ThemeContextValue | null>(null);
+export const ThemeContext = createContext<ThemeContextValue | null>(null);
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [mode, setModeState] = useState<ThemeMode>('auto');
@@ -21,6 +21,19 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   const [reducedMotion, setReducedMotion] = useState(false);
   const [highContrast, setHighContrast] = useState(false);
   const [colorBlindSafe, setColorBlindSafe] = useState(false);
+
+  // Load saved theme preference
+  useEffect(() => {
+    const savedMode = localStorage.getItem('portfolio-theme-mode') as ThemeMode | null;
+    if (savedMode) {
+      setModeState(savedMode);
+    }
+  }, []);
+
+  // Persist theme mode to localStorage
+  useEffect(() => {
+    localStorage.setItem('portfolio-theme-mode', mode);
+  }, [mode]);
 
   // Detect system preferences
   useEffect(() => {

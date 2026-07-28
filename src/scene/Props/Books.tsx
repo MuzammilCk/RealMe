@@ -1,10 +1,11 @@
 import { useMemo } from 'react';
 import { createBookSpineTexture } from '../textures';
+import { LEATHER, WALNUT } from '../colors';
 
 const BOOKS = [
-  { label: 'SKILLS', color: '#2b1810' },
-  { label: 'DESIGN', color: '#3a2418' },
-  { label: 'DEV', color: '#1c2b2b' },
+  { label: 'SKILLS', color: LEATHER[900] },
+  { label: 'DESIGN', color: WALNUT[700] },
+  { label: 'DEV', color: WALNUT[700] },
 ];
 
 export default function Books() {

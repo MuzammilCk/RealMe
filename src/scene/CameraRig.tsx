@@ -3,15 +3,19 @@ import { useThree, useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import gsap from 'gsap';
 import { usePortfolioStore } from '../store/usePortfolioStore';
+import {
+  CAMERA_POSITION_HERO,
+  CAMERA_POSITION_DIARY,
+  CAMERA_LOOKAT_HERO,
+  CAMERA_ANIMATION,
+  IDLE_DRIFT,
+} from './camera/config';
 
 interface CameraRigProps {
   coverPivotRef: RefObject<THREE.Group | null>;
   lampLightRef: RefObject<THREE.PointLight | null>;
 }
 
-const INTRO_CAM = { x: 0, y: 4.0, z: 6.4 };
-const DIARY_CAM = { x: 0, y: 2.5, z: 2.1 };
-const LOOK_AT = new THREE.Vector3(0, 0.35, 0);
 const OPEN_ANGLE = 2.7; // ~155°, cover swings open on the spine hinge
 
 // The ONLY place allowed to call gsap.timeline() against scene objects.
@@ -42,12 +46,12 @@ export default function CameraRig({ coverPivotRef, lampLightRef }: CameraRigProp
     // Lock scroll during intro
     document.body.style.overflow = 'hidden';
 
-    // Camera starts close to diary cover, pulls back to INTRO_CAM
+    // Camera starts close to diary cover, pulls back to hero position
     tl.to(camera.position, {
-      x: INTRO_CAM.x,
-      y: INTRO_CAM.y,
-      z: INTRO_CAM.z,
-      duration: 1.6,
+      x: CAMERA_POSITION_HERO.x,
+      y: CAMERA_POSITION_HERO.y,
+      z: CAMERA_POSITION_HERO.z,
+      duration: CAMERA_ANIMATION.introSequence,
       ease: 'expo.out',
     }, 0);
 
@@ -84,7 +88,7 @@ export default function CameraRig({ coverPivotRef, lampLightRef }: CameraRigProp
 
     if (diaryState === 'opening') {
       const tl = gsap.timeline({ onComplete: () => _setDiaryState('open') });
-      tl.to(camera.position, { x: DIARY_CAM.x, y: DIARY_CAM.y, z: DIARY_CAM.z, duration: 1.6, ease: 'power3.inOut' }, 0);
+      tl.to(camera.position, { x: CAMERA_POSITION_DIARY.x, y: CAMERA_POSITION_DIARY.y, z: CAMERA_POSITION_DIARY.z, duration: CAMERA_ANIMATION.diaryOpen, ease: 'power3.inOut' }, 0);
       if (cover) tl.to(cover, { z: OPEN_ANGLE, duration: 1.15, ease: 'power2.out' }, 0.35);
       // lamp dims slightly on open so the parchment overlay reads against a darker scene
       if (lamp) tl.to(lamp, { intensity: 2.0, duration: 0.9 }, 0.7);
@@ -92,7 +96,7 @@ export default function CameraRig({ coverPivotRef, lampLightRef }: CameraRigProp
     } else {
       const tl = gsap.timeline({ onComplete: () => _setDiaryState('closed') });
       if (cover) tl.to(cover, { z: 0, duration: 0.9, ease: 'power2.inOut' }, 0);
-      tl.to(camera.position, { x: INTRO_CAM.x, y: INTRO_CAM.y, z: INTRO_CAM.z, duration: 1.3, ease: 'power3.inOut' }, 0.25);
+      tl.to(camera.position, { x: CAMERA_POSITION_HERO.x, y: CAMERA_POSITION_HERO.y, z: CAMERA_POSITION_HERO.z, duration: CAMERA_ANIMATION.diaryClose, ease: 'power3.inOut' }, 0.25);
       if (lamp) tl.to(lamp, { intensity: 2.6, duration: 0.8 }, 0.2);
       tlRef.current = tl;
     }
@@ -106,11 +110,11 @@ export default function CameraRig({ coverPivotRef, lampLightRef }: CameraRigProp
     clock.current += delta;
     // gentle idle drift only while closed; otherwise hold framing
     if (diaryState === 'closed') {
-      camera.position.x = INTRO_CAM.x + Math.sin(clock.current * 0.15) * 0.15;
-      camera.position.y = INTRO_CAM.y + Math.sin(clock.current * 0.1) * 0.08;
-      camera.position.z = INTRO_CAM.z + Math.cos(clock.current * 0.12) * 0.1;
+      camera.position.x = CAMERA_POSITION_HERO.x + Math.sin(clock.current * IDLE_DRIFT.frequencyX) * IDLE_DRIFT.amplitudeX;
+      camera.position.y = CAMERA_POSITION_HERO.y + Math.sin(clock.current * IDLE_DRIFT.frequencyY) * IDLE_DRIFT.amplitudeY;
+      camera.position.z = CAMERA_POSITION_HERO.z + Math.cos(clock.current * IDLE_DRIFT.frequencyZ) * IDLE_DRIFT.amplitudeZ;
     }
-    camera.lookAt(LOOK_AT);
+    camera.lookAt(CAMERA_LOOKAT_HERO);
   });
 
   return null;

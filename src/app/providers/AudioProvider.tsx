@@ -145,20 +145,22 @@ export function AudioProvider({ children }: { children: ReactNode }) {
     const clamped = Math.max(0, Math.min(1, v));
     setVolumeState(clamped);
     // Store preference
-    localStorage.setItem('portfolio-audio-volume', String(clamped));
+    try { localStorage.setItem('portfolio-audio-volume', String(clamped)); } catch {}
   }, []);
 
   const setMuted = useCallback((m: boolean) => {
     setMutedState(m);
-    localStorage.setItem('portfolio-audio-muted', String(m));
+    try { localStorage.setItem('portfolio-audio-muted', String(m)); } catch {}
   }, []);
 
   // Load saved preferences
   useEffect(() => {
-    const savedVolume = localStorage.getItem('portfolio-audio-volume');
-    const savedMuted = localStorage.getItem('portfolio-audio-muted');
-    if (savedVolume) setVolumeState(parseFloat(savedVolume));
-    if (savedMuted) setMutedState(savedMuted === 'true');
+    try {
+      const savedVolume = localStorage.getItem('portfolio-audio-volume');
+      const savedMuted = localStorage.getItem('portfolio-audio-muted');
+      if (savedVolume) setVolumeState(parseFloat(savedVolume));
+      if (savedMuted) setMutedState(savedMuted === 'true');
+    } catch {}
   }, []);
 
   const value: AudioContextValue = {

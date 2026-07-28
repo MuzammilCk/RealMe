@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { COVER } from '../data/chapters';
+import { WALNUT, BRASS, LEATHER, ACCENT } from './colors';
 
 // All textures are procedural canvas drawings so the v1 build ships with zero
 // binary assets. Layer B / the store never touch these — only Layer A.
@@ -31,7 +32,7 @@ function redrawOnFontsReady(draw: () => void, texture: THREE.CanvasTexture) {
 export function createWoodTexture(): THREE.CanvasTexture {
   const c = makeCanvas(512, 512);
   const ctx = c.getContext('2d')!;
-  ctx.fillStyle = '#4a2f1c';
+  ctx.fillStyle = WALNUT[900];
   ctx.fillRect(0, 0, 512, 512);
   for (let i = 0; i < 50; i++) {
     ctx.strokeStyle = `rgba(20,12,6,${0.08 + Math.random() * 0.15})`;
@@ -56,7 +57,7 @@ export function createWoodTexture(): THREE.CanvasTexture {
 function drawFlourishCorner(ctx: CanvasRenderingContext2D, cx: number, cy: number) {
   ctx.beginPath();
   ctx.arc(cx, cy, 5, 0, Math.PI * 2);
-  ctx.fillStyle = '#c9a15c';
+  ctx.fillStyle = BRASS[700];
   ctx.fill();
   for (let i = 0; i < 4; i++) {
     const ang = Math.random() * Math.PI * 2;
@@ -77,11 +78,11 @@ export function createDiaryCoverTexture(): THREE.CanvasTexture {
   const c = makeCanvas(1024, 768);
   const ctx = c.getContext('2d')!;
   const draw = () => {
-    ctx.fillStyle = '#2b1810';
+    ctx.fillStyle = LEATHER[700];
     ctx.fillRect(0, 0, 1024, 768);
     speckle(ctx, 1024, 768, 2200, 0.06);
     // tooled border
-    ctx.strokeStyle = '#c9a15c';
+    ctx.strokeStyle = BRASS[700];
     ctx.lineWidth = 2;
     ctx.globalAlpha = 0.85;
     ctx.strokeRect(44, 44, 936, 680);
@@ -95,7 +96,7 @@ export function createDiaryCoverTexture(): THREE.CanvasTexture {
     corners.forEach((p) => drawFlourishCorner(ctx, p[0], p[1]));
     ctx.globalAlpha = 1;
     // title + subtitle
-    ctx.fillStyle = '#c9a15c';
+    ctx.fillStyle = BRASS[700];
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.font = "700 88px 'Fraunces', Georgia, serif";
@@ -115,12 +116,12 @@ export function createNameplateTexture(): THREE.CanvasTexture {
   const c = makeCanvas(512, 128);
   const ctx = c.getContext('2d')!;
   const draw = () => {
-    ctx.fillStyle = '#1c110a';
+    ctx.fillStyle = LEATHER[700];
     ctx.fillRect(0, 0, 512, 128);
-    ctx.strokeStyle = '#c9a15c';
+    ctx.strokeStyle = BRASS[700];
     ctx.lineWidth = 2;
     ctx.strokeRect(6, 6, 500, 116);
-    ctx.fillStyle = '#c9a15c';
+    ctx.fillStyle = BRASS[700];
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.font = "500 18px 'JetBrains Mono', monospace";
@@ -138,7 +139,7 @@ export function createNameplateTexture(): THREE.CanvasTexture {
 export function createBookSpineTexture(label: string): THREE.CanvasTexture {
   const c = makeCanvas(256, 180);
   const ctx = c.getContext('2d')!;
-  ctx.fillStyle = '#c9a15c';
+  ctx.fillStyle = BRASS[700];
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.font = "600 26px 'JetBrains Mono', monospace";
@@ -151,9 +152,9 @@ export function createBookSpineTexture(label: string): THREE.CanvasTexture {
 export function createGlobeTexture(): THREE.CanvasTexture {
   const c = makeCanvas(256, 256);
   const ctx = c.getContext('2d')!;
-  ctx.fillStyle = '#2a4a4a';
+  ctx.fillStyle = ACCENT.globe;
   ctx.fillRect(0, 0, 256, 256);
-  ctx.fillStyle = '#7a6a45';
+  ctx.fillStyle = ACCENT.globeAccent;
   for (let i = 0; i < 14; i++) {
     ctx.beginPath();
     const x = Math.random() * 256;
@@ -169,9 +170,9 @@ export function createGlobeTexture(): THREE.CanvasTexture {
 export function createStickyTexture(text: string): THREE.CanvasTexture {
   const c = makeCanvas(256, 256);
   const ctx = c.getContext('2d')!;
-  ctx.fillStyle = '#d8c877';
+  ctx.fillStyle = ACCENT.sticky;
   ctx.fillRect(0, 0, 256, 256);
-  ctx.fillStyle = '#3a2a14';
+  ctx.fillStyle = ACCENT.stickyText;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.font = "600 40px 'JetBrains Mono', monospace";

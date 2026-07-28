@@ -1,11 +1,11 @@
-import { motion, HTMLMotionProps } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { forwardRef, type ReactNode, type InputHTMLAttributes, type TextareaHTMLAttributes } from 'react';
 
 /**
  * Input - Inkwell-style form input with brass accents
  * ARCHITECTURE-v2 §2, §6: Premium motion, focus states
  */
-export interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'size'> {
+export interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'size' | 'onAnimationStart' | 'onAnimationEnd' | 'onAnimationIteration' | 'onTransitionEnd'> {
   /** Input label */
   label?: string;
   /** Placeholder text */
@@ -135,7 +135,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
               borderColor: error ? 'var(--glow-teal)' : 'var(--border-subtle)',
               backgroundColor: disabled ? 'var(--void-800)' : 'var(--bg-input)',
             }}
-            {...props}
+            {...props as any}
           />
 
           {rightAdornment && (
@@ -209,7 +209,7 @@ Input.displayName = 'Input';
 /**
  * Textarea - Multi-line inkwell input
  */
-export interface TextareaProps extends Omit<TextareaHTMLAttributes<HTMLTextAreaElement>, 'size'> {
+export interface TextareaProps extends Omit<TextareaHTMLAttributes<HTMLTextAreaElement>, 'size' | 'onAnimationStart' | 'onAnimationEnd' | 'onAnimationIteration' | 'onTransitionEnd'> {
   label?: string;
   placeholder?: string;
   error?: string;
@@ -315,7 +315,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
               borderColor: error ? 'var(--glow-teal)' : 'var(--border-subtle)',
               backgroundColor: disabled ? 'var(--void-800)' : 'var(--bg-input)',
             }}
-            {...props}
+            {...props as any}
           />
 
           <motion.div

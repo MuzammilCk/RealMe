@@ -1,12 +1,18 @@
 import { useEffect, useRef, useCallback } from 'react';
 import { useThree, useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { usePortfolioStore } from '../store/usePortfolioStore';
 import { useScroll } from '../app/providers/ScrollProvider';
-
-gsap.registerPlugin(ScrollTrigger);
+import { emitScene, eventBus, type EventMap } from './eventBus';
+import {
+  SECTION_CAMERA_TARGETS,
+  CAMERA_POSITION_HERO,
+  CAMERA_LOOKAT_HERO,
+  CAMERA_POSITION_DIARY,
+  CAMERA_LOOKAT_DIARY,
+  CAMERA_ANIMATION,
+  PARALLAX_SETTINGS,
+} from '../scene/camera/config';
 
 /**
  * Scene-UI Sync Hook
@@ -18,8 +24,6 @@ export function useSceneSync() {
   const { camera, scene } = useThree();
   const { diaryState, threeDEnabled } = usePortfolioStore();
 
-  const cameraTargetsRef = useRef<Map<string, THREE.Vector3>>(new Map());
-  const cameraLookAtRef = useRef<Map<string, THREE.Vector3>>(new Map());
   const lastSectionRef = useRef<string | null>(null);
   const particleBurstRef = useRef<Set<string>>(new Set());
 
@@ -27,21 +31,9 @@ export function useSceneSync() {
   useEffect(() => {
     if (!threeDEnabled) return;
 
-    // Define camera positions for each section
-    cameraTargetsRef.current.set('hero', new THREE.Vector3(0, 4.0, 6.4));
-    cameraTargetsRef.current.set('about', new THREE.Vector3(0, 3.2, 4.8));
-    cameraTargetsRef.current.set('skills', new THREE.Vector3(1.5, 3.5, 4.5));
-    cameraTargetsRef.current.set('projects', new THREE.Vector3(-1.5, 3.0, 5.0));
-    cameraTargetsRef.current.set('experience', new THREE.Vector3(0, 3.5, 5.5));
-    cameraTargetsRef.current.set('contact', new THREE.Vector3(0, 4.0, 6.0));
-
-    // Look-at targets
-    cameraLookAtRef.current.set('hero', new THREE.Vector3(0, 0.35, 0));
-    cameraLookAtRef.current.set('about', new THREE.Vector3(0, 0.5, 0));
-    cameraLookAtRef.current.set('skills', new THREE.Vector3(0, 1.5, 0));
-    cameraLookAtRef.current.set('projects', new THREE.Vector3(0, 0.35, 0));
-    cameraLookAtRef.current.set('experience', new THREE.Vector3(0, 0.5, 0));
-    cameraLookAtRef.current.set('contact', new THREE.Vector3(0, 0.35, 0));
+    // Camera targets are now defined in a single source of truth:
+    // src/scene/camera/config.ts — SECTION_CAMERA_TARGETS
+    // No need to register them here; we read directly from the config.
   }, [threeDEnabled]);
 
   // Sync camera on section change
@@ -51,33 +43,14 @@ export function useSceneSync() {
     // Don't interrupt diary opening/closing animations
     if (diaryState === 'opening' || diaryState === 'closing') return;
 
-    const targetPos = cameraTargetsRef.current.get(section);
-    const targetLookAt = cameraLookAtRef.current.get(section);
+    const target = SECTION_CAMERA_TARGETS[section];
 
-    if (targetPos && targetLookAt && camera) {
-      // Smooth camera transition
-      gsap.to(camera.position, {
-        x: targetPos.x,
-        y: targetPos.y,
-        z: targetPos.z,
-        duration: 1.2,
-        ease: 'power3.inOut',
-      });
-
-      // Smooth look-at transition
-      const currentLookAt = new THREE.Vector3();
-      camera.getWorldDirection(currentLookAt);
-      currentLookAt.add(camera.position);
-
-      gsap.to(currentLookAt, {
-        x: targetLookAt.x,
-        y: targetLookAt.y,
-        z: targetLookAt.z,
-        duration: 1.2,
-        ease: 'power3.inOut',
-        onUpdate: () => {
-          camera.lookAt(currentLookAt);
-        },
+    if (target && camera) {
+      // Emit camera move via eventBus (decoupled from direct mutation)
+      emitScene.cameraMove({
+        position: { x: target.position.x, y: target.position.y, z: target.position.z },
+        lookAt: { x: target.lookAt.x, y: target.lookAt.y, z: target.lookAt.z },
+        duration: CAMERA_ANIMATION.sectionTransition,
       });
 
       // Trigger particle burst on new section (once per section)
@@ -88,26 +61,33 @@ export function useSceneSync() {
 
       lastSectionRef.current = section;
     }
-  }, [section, threeDEnabled, diaryState, camera]);
+  }, [section, threeDEnabled, diaryState]);
 
   // Continuous camera parallax based on scroll progress (when diary is closed)
   useFrame(() => {
     if (!threeDEnabled || diaryState !== 'closed') return;
 
-    // Subtle parallax on scroll progress
-    const parallaxFactor = 0.15;
-    camera.position.x = Math.sin(progress * Math.PI * 2) * parallaxFactor;
-    camera.position.z = 6.4 + Math.cos(progress * Math.PI * 2) * parallaxFactor * 0.5;
-    camera.lookAt(0, 0.35, 0);
+    // Subtle parallax on scroll progress — emit via eventBus
+    const parallaxFactor = PARALLAX_SETTINGS.factor;
+    const targetX = Math.sin(progress * Math.PI * PARALLAX_SETTINGS.frequencyX) * parallaxFactor;
+    const targetZ = PARALLAX_SETTINGS.baseZ + Math.cos(progress * Math.PI * PARALLAX_SETTINGS.frequencyZ) * parallaxFactor * 0.5;
+
+    emitScene.cameraMove({
+      position: { x: targetX, y: CAMERA_POSITION_HERO.y, z: targetZ },
+      lookAt: { x: CAMERA_LOOKAT_HERO.x, y: CAMERA_LOOKAT_HERO.y, z: CAMERA_LOOKAT_HERO.z },
+      duration: CAMERA_ANIMATION.parallax,
+    });
   });
 
   // Trigger particle burst for section transitions
   const triggerParticleBurst = useCallback((sectionId: string) => {
-    // This would emit an event that particle systems listen to
-    // For now, we'll use a custom event that effects can listen to
-    window.dispatchEvent(new CustomEvent('scene:sectionChange', {
-      detail: { section: sectionId }
-    }));
+    // Emit via eventBus for scene layer to consume
+    emitScene.sectionChange({
+      section: sectionId,
+      direction: 'down',
+      velocity: 0,
+      progress: 0,
+    });
   }, []);
 
   // Highlight interactive objects near camera
@@ -125,35 +105,43 @@ export function useSceneSync() {
 
     if (intersects.length > 0) {
       const object = intersects[0].object;
-      // Emit hover event for UI tooltip
-      window.dispatchEvent(new CustomEvent('scene:objectHover', {
-        detail: { object: object.userData, distance: intersects[0].distance }
-      }));
+      // Emit hover event for UI tooltip via eventBus
+      emitScene.objectHover({
+        object: {
+          id: object.userData.id || 'unknown',
+          type: object.userData.type || 'unknown',
+          name: object.userData.name || 'unknown',
+          burstOnHover: object.userData.burstOnHover,
+          position: object.userData.position,
+        },
+        distance: intersects[0].distance,
+      });
     }
   }, [threeDEnabled, scene, camera]);
 
   return {
     triggerParticleBurst,
     highlightNearbyObjects,
-    cameraTargets: cameraTargetsRef.current,
   };
 }
 
 /**
- * Hook for 3D effects to listen to scene events
+ * Hook for 3D effects to listen to scene events via eventBus
  */
 export function useSceneEvents() {
   const { reducedMotion } = usePortfolioStore();
 
-  const subscribe = useCallback((event: string, handler: (detail: any) => void) => {
-    const wrappedHandler = (e: CustomEvent) => {
+  const subscribe = useCallback(<K extends keyof EventMap>(
+    event: K,
+    handler: (detail: EventMap[K]) => void
+  ) => {
+    const wrappedHandler = (detail: EventMap[K]) => {
       if (!reducedMotion || event === 'scene:sectionChange') {
-        handler(e.detail);
+        handler(detail);
       }
     };
 
-    window.addEventListener(event, wrappedHandler as EventListener);
-    return () => window.removeEventListener(event, wrappedHandler as EventListener);
+    return eventBus.on(event, wrappedHandler);
   }, [reducedMotion]);
 
   return { subscribe };
@@ -198,23 +186,17 @@ export function useParticleEvents() {
 }
 
 /**
- * Camera controller hook for programmatic camera control
+ * Camera controller hook for programmatic camera control via eventBus
  */
 export function useCameraControl() {
-  const { camera } = useThree();
   const { diaryState } = usePortfolioStore();
 
   const setFocus = useCallback((target: THREE.Vector3, duration = 1.0) => {
-    if (!camera) return;
-
-    gsap.to(camera.position, {
-      x: target.x,
-      y: target.y,
-      z: target.z,
+    emitScene.cameraFocus({
+      target: { x: target.x, y: target.y, z: target.z },
       duration,
-      ease: 'power3.inOut',
     });
-  }, [camera]);
+  }, []);
 
   const setOrbit = useCallback(() => {
     // This would integrate with OrbitControls if used
@@ -222,30 +204,22 @@ export function useCameraControl() {
   }, []);
 
   const resetToHero = useCallback(() => {
-    if (!camera) return;
-
-    gsap.to(camera.position, {
-      x: 0,
-      y: 4.0,
-      z: 6.4,
-      duration: 1.5,
-      ease: 'expo.out',
+    emitScene.cameraMove({
+      position: { x: CAMERA_POSITION_HERO.x, y: CAMERA_POSITION_HERO.y, z: CAMERA_POSITION_HERO.z },
+      lookAt: { x: CAMERA_LOOKAT_HERO.x, y: CAMERA_LOOKAT_HERO.y, z: CAMERA_LOOKAT_HERO.z },
+      duration: CAMERA_ANIMATION.resetToHero,
     });
-    camera.lookAt(0, 0.35, 0);
-  }, [camera]);
+  }, []);
 
   const followDiary = useCallback(() => {
-    if (!camera || diaryState !== 'open') return;
+    if (diaryState !== 'open') return;
 
-    gsap.to(camera.position, {
-      x: 0,
-      y: 2.5,
-      z: 2.1,
-      duration: 1.2,
-      ease: 'power3.inOut',
+    emitScene.cameraMove({
+      position: { x: CAMERA_POSITION_DIARY.x, y: CAMERA_POSITION_DIARY.y, z: CAMERA_POSITION_DIARY.z },
+      lookAt: { x: CAMERA_LOOKAT_DIARY.x, y: CAMERA_LOOKAT_DIARY.y, z: CAMERA_LOOKAT_DIARY.z },
+      duration: CAMERA_ANIMATION.followDiary,
     });
-    camera.lookAt(0, 0.5, 0);
-  }, [camera, diaryState]);
+  }, [diaryState]);
 
   return { setFocus, setOrbit, resetToHero, followDiary };
 }

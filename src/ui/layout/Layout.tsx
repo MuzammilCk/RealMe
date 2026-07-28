@@ -1,5 +1,6 @@
-import { motion, type HTMLMotionProps } from 'framer-motion';
-import { forwardRef, type ReactNode, type HTMLAttributes } from 'react';
+import { motion } from 'framer-motion';
+import type { HTMLMotionProps } from 'framer-motion';
+import { forwardRef, type ReactNode, type HTMLAttributes, type CSSProperties } from 'react';
 
 /**
  * Container - Main layout container with responsive widths
@@ -79,7 +80,7 @@ export interface SectionProps extends Omit<HTMLAttributes<HTMLElement>, 'childre
   className?: string;
 }
 
-const paddingYStyles = {
+const paddingYStyles: Record<string, string> = {
   none: '0',
   sm: 'var(--space-8) 0',
   md: 'var(--space-10) 0',
@@ -87,7 +88,7 @@ const paddingYStyles = {
   xl: 'var(--space-14) 0',
 };
 
-const backgroundStyles = {
+const backgroundStyles: Record<string, Record<string, unknown>> = {
   none: {},
   vignette: {
     position: 'relative' as const,
@@ -108,7 +109,7 @@ const backgroundStyles = {
   },
 };
 
-export const Section = forwardRef<HTMLSectionElement, SectionProps>(
+export const Section = forwardRef<HTMLElement, SectionProps>(
   (
     {
       children,
@@ -130,7 +131,7 @@ export const Section = forwardRef<HTMLSectionElement, SectionProps>(
         y: 0,
         transition: {
           duration: 0.6,
-          ease: [0.25, 0.46, 0.45, 0.94], // ease-smooth
+          ease: [0.25, 0.46, 0.45, 0.94] as const,
           staggerChildren: staggerDelay,
         },
       },
@@ -143,7 +144,7 @@ export const Section = forwardRef<HTMLSectionElement, SectionProps>(
         y: 0,
         transition: {
           duration: 0.5,
-          ease: [0.34, 1.56, 0.64, 1], // ease-spring
+          ease: [0.34, 1.56, 0.64, 1] as const,
         },
       },
     };
@@ -157,13 +158,13 @@ export const Section = forwardRef<HTMLSectionElement, SectionProps>(
           position: 'relative',
           ...backgroundStyles[background],
           ...style,
-        }}
+        } as CSSProperties}
         className={className}
         initial={reveal ? 'hidden' : undefined}
         whileInView={reveal ? 'visible' : undefined}
         viewport={{ once: true, margin: '-100px' }}
         variants={variants}
-        {...props}
+        {...props as any}
       >
         <motion.div
           variants={childVariants}
@@ -207,14 +208,6 @@ export const Grid = forwardRef<HTMLDivElement, GridProps>(
     },
     ref
   ) => {
-    const gridTemplateColumns = [
-      `repeat(${columns.base}, 1fr)`,
-      columns.sm && `@media (min-width: 640px) { grid-template-columns: repeat(${columns.sm}, 1fr); }`,
-      columns.md && `@media (min-width: 768px) { grid-template-columns: repeat(${columns.md}, 1fr); }`,
-      columns.lg && `@media (min-width: 1024px) { grid-template-columns: repeat(${columns.lg}, 1fr); }`,
-      columns.xl && `@media (min-width: 1280px) { grid-template-columns: repeat(${columns.xl}, 1fr); }`,
-    ].filter(Boolean).join(' ');
-
     return (
       <motion.div
         ref={ref}
@@ -229,20 +222,6 @@ export const Grid = forwardRef<HTMLDivElement, GridProps>(
         className={className}
         {...props}
       >
-        <style jsx>{`
-          @media (min-width: 640px) {
-            .grid { grid-template-columns: repeat(${columns.sm || columns.base}, 1fr); }
-          }
-          @media (min-width: 768px) {
-            .grid { grid-template-columns: repeat(${columns.md || columns.sm || columns.base}, 1fr); }
-          }
-          @media (min-width: 1024px) {
-            .grid { grid-template-columns: repeat(${columns.lg || columns.md || columns.sm || columns.base}, 1fr); }
-          }
-          @media (min-width: 1280px) {
-            .grid { grid-template-columns: repeat(${columns.xl || columns.lg || columns.md || columns.sm || columns.base}, 1fr); }
-          }
-        `}</style>
         {children}
       </motion.div>
     );
@@ -291,7 +270,7 @@ export const Flex = forwardRef<HTMLDivElement, FlexProps>(
         ref={ref}
         style={{
           display: 'flex',
-          flexDirection: direction,
+          flexDirection: direction as CSSProperties['flexDirection'],
           justifyContent: justify,
           alignItems: align,
           gap,

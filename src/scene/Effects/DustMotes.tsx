@@ -1,6 +1,7 @@
 import { useRef, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
+import { EMBER } from '../colors';
 
 // Dust motes floating in the lamp light - adds life and atmosphere
 export function DustMotes({ count = 80 }) {
@@ -47,7 +48,7 @@ export function DustMotes({ count = 80 }) {
     transparent: true,
     opacity: 1,
     vertexColors: false,
-    color: 0xffb366,
+    color: EMBER[200],
     depthWrite: false,
     blending: THREE.AdditiveBlending,
   }), []);

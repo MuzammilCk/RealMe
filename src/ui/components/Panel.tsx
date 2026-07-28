@@ -1,5 +1,6 @@
-import { motion, HTMLMotionProps } from 'framer-motion';
-import { forwardRef, type ReactNode, type HTMLAttributes } from 'react';
+import { motion } from 'framer-motion';
+import type { HTMLMotionProps } from 'framer-motion';
+import { forwardRef, type ReactNode } from 'react';
 
 /**
  * Panel - Sliding/drawer panel with brass trim and backdrop blur
@@ -88,7 +89,7 @@ export const Panel = forwardRef<HTMLDivElement, PanelProps>(
         )}
         <motion.div
           ref={ref}
-          style={baseStyle}
+          style={baseStyle as any}
           className={className}
           initial={{ opacity: 0, x: initialX, y: initialY }}
           animate={open ? { opacity: 1, x: 0, y: 0 } : { opacity: 0, x: initialX, y: initialY }}

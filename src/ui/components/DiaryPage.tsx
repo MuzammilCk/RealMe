@@ -1,5 +1,5 @@
-import { motion, HTMLMotionProps } from 'framer-motion';
-import { forwardRef, type ReactNode, type HTMLAttributes } from 'react';
+import { motion } from 'framer-motion';
+import { type ReactNode, type CSSProperties } from 'react';
 
 /**
  * DiaryPage - Paper texture page with ink bleed edges, text in Crimson Pro
@@ -40,7 +40,7 @@ export function DiaryPage({
     overflow: 'hidden',
     transformStyle: 'preserve-3d',
     perspective: 1000,
-  } as React.CSSProperties;
+  } as CSSProperties;
 
   // Page turn transform
   if (turnProgress > 0 && turnProgress < 1) {

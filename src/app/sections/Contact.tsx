@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useThree } from '@react-three/fiber';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { usePortfolioStore } from '../../store/usePortfolioStore';
 import { useScroll } from '../providers/ScrollProvider';
 import { CONTACT } from '../../data/chapters';
 import { useAudio } from '../providers/AudioProvider';
+import { emitScene } from '../../lib/eventBus';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -18,7 +18,6 @@ export function Contact() {
   const sectionRef = useRef<HTMLDivElement>(null);
   const { section: currentSection } = useScroll();
   const { diaryState, threeDEnabled } = usePortfolioStore();
-  const { camera } = useThree();
   const { brassClick, inkScratch, success, emberWhoosh } = useAudio();
 
   const [formState, setFormState] = useState<{
@@ -39,20 +38,16 @@ export function Contact() {
   const formRef = useRef<HTMLFormElement>(null);
   const inkwellRef = useRef<HTMLDivElement>(null);
 
-  // Camera behavior for contact section
+  // Camera behavior for contact section — emit via eventBus (Layer A → Layer B)
   useEffect(() => {
     if (!threeDEnabled || diaryState !== 'open' || currentSection !== 'contact') return;
 
-    // Position camera above inkwell
-    gsap.to(camera.position, {
-      x: 0,
-      y: 3.2,
-      z: 4.8,
+    emitScene.cameraMove({
+      position: { x: 0, y: 3.2, z: 4.8 },
+      lookAt: { x: 0, y: 0.5, z: 0 },
       duration: 1.5,
-      ease: 'power3.inOut',
-      onUpdate: () => camera.lookAt(0, 0.5, 0),
     });
-  }, [currentSection, threeDEnabled, diaryState, camera]);
+  }, [currentSection, threeDEnabled, diaryState]);
 
   // Handle form input with ink writing animation
   const handleInputChange = (field: string, value: string) => {

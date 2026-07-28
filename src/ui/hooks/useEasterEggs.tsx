@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 
 /**
  * Konami Code Easter Egg Hook
@@ -25,7 +25,7 @@ export function useKonamiCode(onActivate: () => void) {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       // Don't trigger if user is typing in an input
-      const active = document.activeElement;
+      const active = document.activeElement as HTMLElement | null;
       if (active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.isContentEditable)) {
         return;
       }
@@ -75,29 +75,28 @@ export function useInkwellEasterEgg(
   const clickCountRef = useRef(0);
   const timeoutRef = useRef<number | null>(null);
 
-  useEffect(() => {
-    const handleClick = () => {
-      clickCountRef.current++;
+  const handleClick = useCallback(() => {
+    clickCountRef.current++;
 
-      if (clickCountRef.current >= threshold) {
-        onClick();
-        clickCountRef.current = 0;
-        if (timeoutRef.current) window.clearTimeout(timeoutRef.current);
-        return;
-      }
-
-      // Reset count after delay
+    if (clickCountRef.current >= threshold) {
+      onClick();
+      clickCountRef.current = 0;
       if (timeoutRef.current) window.clearTimeout(timeoutRef.current);
-      timeoutRef.current = window.setTimeout(() => {
-        clickCountRef.current = 0;
-      }, resetDelay);
-    };
+      return;
+    }
 
-    // This is attached via ref to the inkwell element
+    // Reset count after delay
+    if (timeoutRef.current) window.clearTimeout(timeoutRef.current);
+    timeoutRef.current = window.setTimeout(() => {
+      clickCountRef.current = 0;
+    }, resetDelay);
+  }, [onClick, threshold, resetDelay]);
+
+  useEffect(() => {
     return () => {
       if (timeoutRef.current) window.clearTimeout(timeoutRef.current);
     };
-  }, [onClick, threshold, resetDelay]);
+  }, []);
 
-  return { clickCount: clickCountRef.current };
+  return { clickCount: clickCountRef.current, handleClick };
 }

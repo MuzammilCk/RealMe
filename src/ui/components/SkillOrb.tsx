@@ -1,9 +1,9 @@
 import { Canvas } from '@react-three/fiber';
 import { motion } from 'framer-motion';
-import { forwardRef, useRef, useEffect, useState, type ReactNode, type ForwardedRef } from 'react';
+import { forwardRef, useRef, useEffect, useState } from 'react';
 import * as THREE from 'three';
-import { usePortfolioStore } from '../../../store/usePortfolioStore';
-import { SkillOrbData } from '@scene/Props/SkillOrbSystem';
+import { usePortfolioStore } from '../../store/usePortfolioStore';
+import type { SkillOrbData } from '../../data/skillOrbs';
 
 /**
  * SkillOrb - 3D sphere embedded in UI via Canvas portal
@@ -26,13 +26,6 @@ export const SkillOrb = forwardRef<HTMLDivElement, SkillOrbProps>(
     const [hovered, setHovered] = useState(false);
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const { deviceTier, reducedMotion } = usePortfolioStore();
-
-    // Create a minimal scene with just this orb
-    const orbScene = (canvas: HTMLCanvasElement) => {
-      // This would mount a mini R3F scene with the orb
-      // For now, we use a styled div as fallback
-      return null;
-    };
 
     const catColors = {
       frontend: { color: '#ff7a2a', glow: '#ff9d52' },
@@ -74,8 +67,6 @@ export const SkillOrb = forwardRef<HTMLDivElement, SkillOrbProps>(
               color={colors.color}
               glowColor={colors.glow}
               hovered={hovered}
-              proficiency={skill.proficiency}
-              reducedMotion={reducedMotion}
             />
           </Canvas>
         )}
@@ -195,21 +186,21 @@ function SkillOrbMesh({
   color,
   glowColor,
   hovered,
-  proficiency,
-  reducedMotion,
 }: {
   color: string;
   glowColor: string;
   hovered: boolean;
-  proficiency: number;
-  reducedMotion: boolean;
 }) {
   const meshRef = useRef<THREE.Mesh>(null);
-  const clock = useRef(0);
 
   useEffect(() => {
     if (!meshRef.current) return;
-    meshRef.current.material.color.set(color);
+    const material = meshRef.current.material as THREE.MeshBasicMaterial;
+    if (Array.isArray(material)) {
+      material.forEach(m => m.color.set(color));
+    } else {
+      material.color.set(color);
+    }
   }, [color]);
 
   return (

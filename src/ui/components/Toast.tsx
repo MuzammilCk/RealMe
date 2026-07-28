@@ -1,6 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { useState, useEffect, useCallback, type ReactNode } from 'react';
-import { createPortal } from 'react-dom';
+import { useState, useEffect, useCallback } from 'react';
 import { Button } from './Button';
 
 /**
@@ -31,7 +30,7 @@ const toastColors = {
   error: { border: 'var(--glow-teal)', icon: 'x-circle', bg: 'rgba(42, 168, 158, 0.15)' },
 };
 
-const icons = {
+const icons: Record<string, React.ReactElement> = {
   info: (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
       <circle cx="12" cy="12" r="10" />
@@ -115,7 +114,7 @@ export function toast(props: ToastProps) {
       overflow: hidden;
     ">
       <div style="flex-shrink: 0; color: ${colors.border};">
-        ${icons[colors.icon].outerHTML}
+        ${(icons[colors.icon] as unknown as { outerHTML: string }).outerHTML}
       </div>
       <div style="flex: 1; min-width: 0;">
         <div style="margin-bottom: 4px;">${props.message}</div>
@@ -197,7 +196,7 @@ export function toast(props: ToastProps) {
   };
 
   // Auto dismiss
-  let timeoutId: ReturnType<typeof setTimeout>;
+  let timeoutId: ReturnType<typeof setTimeout> | undefined;
   if (duration > 0) {
     timeoutId = setTimeout(dismiss, duration);
   }
@@ -206,14 +205,16 @@ export function toast(props: ToastProps) {
   toastEl.addEventListener('click', (e) => {
     const target = e.target as HTMLElement;
     if (target.dataset.dismiss === id) {
+      if (timeoutId) clearTimeout(timeoutId);
       dismiss();
     } else if (target.dataset.action === id) {
       props.action?.onClick();
+      if (timeoutId) clearTimeout(timeoutId);
       dismiss();
     }
   });
 
-  return { dismiss, update: (newProps: Partial<ToastProps>) => {} };
+  return { dismiss, update: (_newProps: Partial<ToastProps>) => {} };
 }
 
 /**
@@ -221,13 +222,6 @@ export function toast(props: ToastProps) {
  */
 export function ToastContainer() {
   const [toasts, setToasts] = useState<ToastState[]>([]);
-
-  const addToast = useCallback((props: ToastProps) => {
-    const id = `toast-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-    const newToast = { ...props, id, duration: props.duration ?? 5000 };
-    setToasts(prev => [...prev, newToast]);
-    return id;
-  }, []);
 
   const removeToast = useCallback((id: string) => {
     setToasts(prev => prev.filter(t => t.id !== id));
@@ -242,7 +236,7 @@ export function ToastContainer() {
   );
 }
 
-function Toast({ toast, onClose }: { toast: ToastState; onClose: () => void }) {
+export function Toast({ toast, onClose }: { toast: ToastState; onClose: () => void }) {
   const [progress, setProgress] = useState(1);
   const colors = toastColors[toast.type || 'info'];
 
@@ -303,7 +297,7 @@ function Toast({ toast, onClose }: { toast: ToastState; onClose: () => void }) {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => { toast.action.onClick(); onClose(); }}
+              onClick={() => { toast.action!.onClick(); onClose(); }}
               style={{ padding: '6px 12px', fontSize: '0.75rem' }}
             >
               {toast.action.label}

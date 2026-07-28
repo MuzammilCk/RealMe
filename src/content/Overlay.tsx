@@ -1,4 +1,4 @@
-import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import type { ChapterId } from '../data/chapters';
 import { usePortfolioStore } from '../store/usePortfolioStore';
 import IntroChrome from './IntroChrome';

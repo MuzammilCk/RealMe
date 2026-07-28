@@ -1,6 +1,7 @@
 import { useRef, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
+import { EMBER } from '../colors';
 
 // EmberFloat — drifting embers rising from the lamp (ARCHITECTURE-v2 §7,
 // TASKS-v2 T1.4.2). Reinforces the "warm ember glow" pillar and feeds the
@@ -9,8 +10,8 @@ import * as THREE from 'three';
 // approximation so the swarm swirls instead of drifting straight up.
 
 // Ember palette drawn from the locked --ember-500/400 tokens (warm orange).
-const EMBER_COLOR = 0xff7a2a;
-const EMBER_BRIGHT = 0xffb060;
+const EMBER_COLOR = EMBER[500];
+const EMBER_BRIGHT = EMBER[300];
 
 interface EmberFloatProps {
   count?: number;
@@ -128,7 +129,7 @@ export function EmberFloat({ count = 140, origin = [-0.95, 1.42, 0] }: EmberFloa
     // shared material breathes subtly so the swarm as a whole pulses
     const mat = points.material as THREE.PointsMaterial;
     mat.opacity = 0.7 + Math.sin(t * 1.8) * 0.15;
-    mat.color.setHex(Math.sin(t * 0.9) > 0 ? EMBER_COLOR : EMBER_BRIGHT);
+    mat.color.set(Math.sin(t * 0.9) > 0 ? EMBER_COLOR : EMBER_BRIGHT);
   });
 
   return <points ref={pointsRef} geometry={geometry} material={material} />;

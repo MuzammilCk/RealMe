@@ -1,5 +1,5 @@
-import { motion, HTMLMotionProps } from 'framer-motion';
-import { forwardRef, type ReactNode, type HTMLAttributes, useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
+import { useRef, useEffect, useState, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 
 /**

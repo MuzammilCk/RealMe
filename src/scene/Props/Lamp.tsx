@@ -2,6 +2,7 @@ import { type RefObject, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { usePortfolioStore } from '../../store/usePortfolioStore';
+import { LEATHER, EMBER } from '../colors';
 
 interface LampProps {
   lightRef: RefObject<THREE.PointLight | null>;
@@ -15,7 +16,7 @@ export default function Lamp({ lightRef }: LampProps) {
   const armRef = useRef<THREE.Group>(null);
 
   const metal = (
-    <meshStandardMaterial color="#1c110a" roughness={0.45} metalness={0.65} />
+    <meshStandardMaterial color={LEATHER[700]} roughness={0.45} metalness={0.65} />
   );
 
   useFrame((_, delta) => {
@@ -52,7 +53,7 @@ export default function Lamp({ lightRef }: LampProps) {
       <pointLight
         ref={lightRef}
         position={[-0.95, 1.42, 0]}
-        color="#ff9d52"
+        color={EMBER[400]}
         intensity={2.6}
         distance={9}
         decay={2}

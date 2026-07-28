@@ -1,13 +1,10 @@
 import { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { useThree, useFrame } from '@react-three/fiber';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { usePortfolioStore } from '../../store/usePortfolioStore';
 import { useScroll } from '../providers/ScrollProvider';
 import { ABOUT } from '../../data/chapters';
-import SkillOrbSystem, { SkillOrbLabel } from '../../scene/Props/SkillOrbSystem';
-import * as THREE from 'three';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -17,26 +14,12 @@ gsap.registerPlugin(ScrollTrigger);
  */
 export function About() {
   const sectionRef = useRef<HTMLDivElement>(null);
-  const { section: currentSection, getSectionProgress } = useScroll();
+  const { section: currentSection } = useScroll();
   const { diaryState, threeDEnabled } = usePortfolioStore();
-  const { camera } = useThree();
   const leftPageRef = useRef<HTMLDivElement>(null);
   const rightPageRef = useRef<HTMLDivElement>(null);
 
-  // Camera follows scroll when diary is open and on about section
-  useFrame(() => {
-    if (!threeDEnabled || diaryState !== 'open' || currentSection !== 'about') return;
-
-    const sectionProgress = getSectionProgress('about');
-
-    // Camera moves from hero position to closer diary view
-    const targetY = gsap.utils.interpolate(4.0, 2.5, sectionProgress);
-    const targetZ = gsap.utils.interpolate(6.4, 2.1, sectionProgress);
-
-    camera.position.y += (targetY - camera.position.y) * 0.05;
-    camera.position.z += (targetZ - camera.position.z) * 0.05;
-    camera.lookAt(0, 0.5 + sectionProgress * 0.3, 0);
-  });
+  // Camera behavior for about section is handled by useSceneSync in the scene layer
 
   // Page turn animation on scroll
   useEffect(() => {
@@ -80,7 +63,7 @@ export function About() {
       }}
       aria-labelledby="about-heading"
     >
-      {/* 3D Skill Orbs Background */}
+      {/* 3D Skill Orbs Background — rendered in CanvasRoot via scene layer */}
       {threeDEnabled && diaryState === 'open' && currentSection === 'about' && (
         <div
           className="about-3d-bg"
@@ -91,16 +74,7 @@ export function About() {
             pointerEvents: 'none',
           }}
         >
-          <SkillOrbSystem
-            count={12}
-            radius={2.2}
-            onHover={() => {
-              // Could trigger UI tooltip
-            }}
-            onClick={() => {
-              // Could open skill detail
-            }}
-          />
+          {/* Skill orbs are rendered by the scene layer (CanvasRoot) */}
         </div>
       )}
 
@@ -291,14 +265,6 @@ export function About() {
           </motion.p>
         </motion.div>
       </div>
-
-      {/* Skill Orb Labels (HTML overlay for 3D orbs) */}
-      {threeDEnabled && diaryState === 'open' && currentSection === 'about' && (
-        <SkillOrbLabel
-          skill={null} // Would be connected to actual hovered skill
-          position={new THREE.Vector3(0, 1.5, 0)}
-        />
-      )}
 
       {/* Section indicator dots */}
       <div

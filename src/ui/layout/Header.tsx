@@ -1,8 +1,7 @@
-import { motion, useMotionValue, useScroll, useTransform } from 'framer-motion';
+import { motion, useScroll, useTransform } from 'framer-motion';
 import { usePortfolioStore } from '../../store/usePortfolioStore';
 import { Button } from '../components/Button';
 import { Flex } from './Layout';
-import { useEffect, useState } from 'react';
 
 /**
  * Header - Logo, nav links, theme toggle, scroll progress
@@ -172,9 +171,8 @@ export function Header() {
             height: '100%',
             background: 'linear-gradient(90deg, var(--interactive-default), var(--interactive-hover), var(--glow-ember))',
             transformOrigin: 'left center',
+            scaleX: progress,
           }}
-          animate={{ scaleX: progress }}
-          transition={{ duration: 0.1, ease: 'linear' }}
         />
       </motion.div>
     </motion.header>

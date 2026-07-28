@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, useCallback, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, useRef, useCallback, type ReactNode } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -38,10 +38,12 @@ export function ScrollProvider({ children }: { children: ReactNode }) {
   const [direction, setDirection] = useState(1);
   const [velocity, setVelocity] = useState(0);
   const [sections, setSections] = useState<Map<string, SectionRef>>(new Map());
-  const [lastScrollY, setLastScrollY] = useState(0);
-  const [lastTime, setLastTime] = useState(performance.now());
+  // Use refs for scroll tracking to avoid recreating ScrollTrigger on every scroll
+  const lastScrollYRef = useRef(0);
+  const lastTimeRef = useRef(performance.now());
+  const sectionRef = useRef<string | null>(null);
 
-  // Global scroll progress trigger
+  // Global scroll progress trigger — created once, never recreated
   useEffect(() => {
     const scrollTrigger = ScrollTrigger.create({
       trigger: document.body,
@@ -53,13 +55,13 @@ export function ScrollProvider({ children }: { children: ReactNode }) {
 
         // Calculate velocity
         const now = performance.now();
-        const deltaY = self.scroll() - lastScrollY;
-        const deltaTime = now - lastTime;
+        const deltaY = self.scroll() - lastScrollYRef.current;
+        const deltaTime = now - lastTimeRef.current;
         if (deltaTime > 0) {
           setVelocity((deltaY / deltaTime) * 1000); // px/s
         }
-        setLastScrollY(self.scroll());
-        setLastTime(now);
+        lastScrollYRef.current = self.scroll();
+        lastTimeRef.current = now;
 
         // Direction
         setDirection(self.direction);
@@ -67,7 +69,12 @@ export function ScrollProvider({ children }: { children: ReactNode }) {
     });
 
     return () => scrollTrigger.kill();
-  }, [lastScrollY, lastTime]);
+  }, []);
+
+  // Keep sectionRef in sync with section state
+  useEffect(() => {
+    sectionRef.current = section;
+  }, [section]);
 
   // Section registration
   const registerSection = useCallback((id: string, element: HTMLElement | null) => {
@@ -80,10 +87,10 @@ export function ScrollProvider({ children }: { children: ReactNode }) {
       onEnter: () => setSection(id),
       onEnterBack: () => setSection(id),
       onLeave: () => {
-        if (section === id) setSection(null);
+        if (sectionRef.current === id) setSection(null);
       },
       onLeaveBack: () => {
-        if (section === id) setSection(null);
+        if (sectionRef.current === id) setSection(null);
       },
       onUpdate: (self) => {
         setSections((prev) => {
@@ -113,9 +120,9 @@ export function ScrollProvider({ children }: { children: ReactNode }) {
         return next;
       });
     };
-  }, [section]);
+  }, []);
 
-  // Scroll to section
+  // Scroll to section — uses ref to avoid dependency on sections map
   const scrollToSection = useCallback((id: string) => {
     const sectionData = sections.get(id);
     if (sectionData?.element) {

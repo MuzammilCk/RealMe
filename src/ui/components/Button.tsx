@@ -1,5 +1,6 @@
-import { motion, HTMLMotionProps } from 'framer-motion';
-import { forwardRef, type ButtonHTMLAttributes, type ReactNode } from 'react';
+import { motion } from 'framer-motion';
+import type { HTMLMotionProps } from 'framer-motion';
+import { forwardRef, type ReactNode } from 'react';
 
 /**
  * Button - Premium interactive button with multiple variants
@@ -116,7 +117,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     return (
       <motion.button
         ref={ref}
-        style={baseStyle}
+        style={baseStyle as any}
         className={className}
         disabled={disabled || loading}
         whileHover={disabled || loading ? undefined : {
@@ -151,10 +152,6 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           <span style={{ whiteSpace: 'nowrap' }}>{children}</span>
           {rightIcon && !loading && <span style={{ display: 'flex' }}>{rightIcon}</span>}
         </span>
-        <style jsx>{`
-          @keyframes spin { to { transform: rotate(360deg); } }
-          .button-spinner { color: inherit; }
-        `}</style>
       </motion.button>
     );
   }

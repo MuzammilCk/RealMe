@@ -5,6 +5,7 @@ import { createStickyTexture } from '../textures';
 import { STICKY_NOTES } from '../../data/chapters';
 import { usePortfolioStore } from '../../store/usePortfolioStore';
 import { useKeyboardFocusable } from '../../scene/accessibility/KeyboardNavigation';
+import { ACCENT } from '../colors';
 
 // Decorative desk litter — two tilted sticky notes + a pen. Intro state only,
 // but harmless to leave in the scene. (03-CONTENT-STORYLINE.md)
@@ -48,7 +49,7 @@ export default function StickyNotes() {
     <group>
       <mesh position={[-0.9, 0.06, 0.9]} rotation={[Math.PI / 2, 0, Math.PI / 2.3]}>
         <cylinderGeometry args={[0.012, 0.012, 0.5, 8]} />
-        <meshStandardMaterial color="#1c1c1c" roughness={0.3} metalness={0.4} />
+        <meshStandardMaterial color={ACCENT.camera} roughness={0.3} metalness={0.4} />
       </mesh>
       {STICKY_NOTES.map((n, i) => {
         const isHovered = hoveredIndex === i;

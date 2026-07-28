@@ -1,7 +1,5 @@
-import { useRef, useState } from 'react';
+import { useRef } from 'react';
 import { motion } from 'framer-motion';
-import { useThree, useFrame } from '@react-three/fiber';
-import * as THREE from 'three';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { usePortfolioStore } from '../../store/usePortfolioStore';
@@ -20,29 +18,9 @@ export function Projects() {
   const sectionRef = useRef<HTMLDivElement>(null);
   const { section: currentSection } = useScroll();
   const { diaryState, threeDEnabled, openProject, activeProject } = usePortfolioStore();
-  const { camera } = useThree();
   const { success } = useAudio();
 
-  const [hoveredProject] = useState<string | null>(null);
-  const cameraTargetRef = useRef(new THREE.Vector3(0, 0.35, 0));
-  const isOrbitingRef = useRef(true);
-
-  // Camera behavior for projects section
-  useFrame(() => {
-    if (!threeDEnabled || diaryState !== 'open' || currentSection !== 'projects') return;
-
-    if (isOrbitingRef.current && !hoveredProject) {
-      // Slow orbital camera around desk
-      const time = performance.now() * 0.0002;
-      const radius = 5.5;
-      cameraTargetRef.current.set(0, 0.5, 0);
-
-      camera.position.x = Math.cos(time) * radius;
-      camera.position.z = Math.sin(time) * radius;
-      camera.position.y = 3.0 + Math.sin(time * 0.5) * 0.4;
-      camera.lookAt(cameraTargetRef.current);
-    }
-  });
+  // Camera behavior for projects section is handled by useSceneSync in the scene layer
 
   const handleProjectClick = (projectId: string) => {
     openProject(projectId);

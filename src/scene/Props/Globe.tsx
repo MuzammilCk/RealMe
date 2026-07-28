@@ -4,6 +4,7 @@ import * as THREE from 'three';
 import { createGlobeTexture } from '../textures';
 import { usePortfolioStore } from '../../store/usePortfolioStore';
 import { useKeyboardFocusable } from '../../scene/accessibility/KeyboardNavigation';
+import { LEATHER } from '../colors';
 
 export default function Globe() {
   const { reducedMotion } = usePortfolioStore();
@@ -48,11 +49,11 @@ export default function Globe() {
       </mesh>
       <mesh position={[0, 0.46, 0]} rotation={[Math.PI / 2, 0, 0]}>
         <torusGeometry args={[0.3, 0.018, 8, 24]} />
-        <meshStandardMaterial color="#2b1810" roughness={0.6} />
+        <meshStandardMaterial color={LEATHER[900]} roughness={0.6} />
       </mesh>
       <mesh position={[0, 0.23, 0]} castShadow>
         <cylinderGeometry args={[0.03, 0.11, 0.46, 10]} />
-        <meshStandardMaterial color="#2b1810" roughness={0.6} />
+        <meshStandardMaterial color={LEATHER[900]} roughness={0.6} />
       </mesh>
     </group>
   );

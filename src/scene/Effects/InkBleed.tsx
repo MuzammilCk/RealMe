@@ -2,6 +2,7 @@ import { useRef, useMemo, useEffect } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { usePortfolioStore } from '../../store/usePortfolioStore';
+import { PARCHMENT } from '../colors';
 
 /**
  * Ink Bleed Effect - Full-screen shader triggered by page-turn events
@@ -22,8 +23,8 @@ export function InkBleed() {
       uTime: { value: 0 },
       uProgress: { value: 0 },
       uResolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
-      uInkColor: { value: new THREE.Color(0x1a0f08) }, // parchment-900 dark ink
-      uPaperColor: { value: new THREE.Color(0xf5e8d0) }, // parchment-300 paper
+      uInkColor: { value: new THREE.Color(PARCHMENT[900]) }, // parchment-900 dark ink
+      uPaperColor: { value: new THREE.Color(PARCHMENT[300]) }, // parchment-300 paper
       uNoiseScale: { value: 0.015 },
       uDisplacement: { value: 0.0 },
     },

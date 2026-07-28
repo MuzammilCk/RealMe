@@ -1,13 +1,13 @@
 import { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { useThree } from '@react-three/fiber';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { usePortfolioStore } from '../../store/usePortfolioStore';
 import { useScroll } from '../providers/ScrollProvider';
 import { EXPERIENCE } from '../../data/chapters';
 import BookSpread from '../../content/BookSpread';
-import { useAudio } from '../providers/AudioProvider';
+import { emitScene } from '../../lib/eventBus';
+import { SECTION_CAMERA_TARGETS, CAMERA_ANIMATION } from '../../scene/camera/config';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -19,22 +19,17 @@ export function Experience() {
   const sectionRef = useRef<HTMLDivElement>(null);
   const { section: currentSection } = useScroll();
   const { diaryState, threeDEnabled } = usePortfolioStore();
-  const { camera } = useThree();
-  const { pageTurn: _pageTurn } = useAudio();
 
-  // Camera behavior for experience section
+  // Camera behavior for experience section — emit via eventBus (Layer A → Layer B)
   useEffect(() => {
     if (!threeDEnabled || diaryState !== 'open' || currentSection !== 'experience') return;
 
-    gsap.to(camera.position, {
-      x: 0,
-      y: 2.8,
-      z: 3.5,
-      duration: 1.5,
-      ease: 'power3.inOut',
-      onUpdate: () => camera.lookAt(0, 0.5, 0),
+    emitScene.cameraMove({
+      position: { x: SECTION_CAMERA_TARGETS.experience.position.x, y: SECTION_CAMERA_TARGETS.experience.position.y, z: SECTION_CAMERA_TARGETS.experience.position.z },
+      lookAt: { x: SECTION_CAMERA_TARGETS.experience.lookAt.x, y: SECTION_CAMERA_TARGETS.experience.lookAt.y, z: SECTION_CAMERA_TARGETS.experience.lookAt.z },
+      duration: CAMERA_ANIMATION.sectionTransition,
     });
-  }, [currentSection, threeDEnabled, diaryState, camera]);
+  }, [currentSection, threeDEnabled, diaryState]);
 
   // Page turn animation on scroll
   useEffect(() => {

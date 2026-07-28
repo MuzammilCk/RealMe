@@ -3,6 +3,7 @@ import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { usePortfolioStore } from '../../store/usePortfolioStore';
 import { useKeyboardFocusable } from '../../scene/accessibility/KeyboardNavigation';
+import { WALNUT, ACCENT } from '../colors';
 
 export default function Plant() {
   const { reducedMotion } = usePortfolioStore();
@@ -38,7 +39,7 @@ export default function Plant() {
     >
       <mesh position={[0, 0.11, 0]} castShadow>
         <cylinderGeometry args={[0.16, 0.13, 0.22, 16]} />
-        <meshStandardMaterial color="#3a2418" roughness={0.7} />
+        <meshStandardMaterial color={WALNUT[700]} roughness={0.7} />
       </mesh>
       {Array.from({ length: 7 }).map((_, i) => {
         const ang = (i / 7) * Math.PI * 2;
@@ -49,7 +50,7 @@ export default function Plant() {
             scale={[0.8, 1.3, 0.8]}
           >
             <sphereGeometry args={[0.11 + Math.random() * 0.05, 8, 8]} />
-            <meshStandardMaterial color="#2e4a2e" roughness={0.8} />
+            <meshStandardMaterial color={ACCENT.leaf} roughness={0.8} />
           </mesh>
         );
       })}

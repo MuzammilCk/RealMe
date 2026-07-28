@@ -1,6 +1,7 @@
 import { useRef, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
+import { LIGHTING } from '../colors';
 
 /**
  * Volumetric light shaft (god rays) from the lamp
@@ -19,7 +20,7 @@ export function VolumetricLight({ lightRef }: { lightRef: React.RefObject<THREE.
   }, []);
 
   const material = useMemo(() => new THREE.MeshBasicMaterial({
-    color: 0xffaa33,
+    color: LIGHTING.volumetric,
     transparent: true,
     opacity: 0.08,
     depthWrite: false,
@@ -63,7 +64,7 @@ export function VolumetricLightAdvanced({ lightRef }: { lightRef: React.RefObjec
     uniforms: {
       uTime: { value: 0 },
       uLightPos: { value: new THREE.Vector3() },
-      uLightColor: { value: new THREE.Color(0xffaa33) },
+      uLightColor: { value: new THREE.Color(LIGHTING.volumetric) },
       uLightIntensity: { value: 1 },
       uCameraPos: { value: new THREE.Vector3() },
     },

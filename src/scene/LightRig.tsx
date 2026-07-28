@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import * as THREE from 'three';
+import { LIGHTING, SCENE } from './colors';
 
 /**
  * Lighting Rig - Warm Candlelit Artisan Workshop
@@ -12,7 +13,7 @@ import * as THREE from 'three';
  */
 export function LightRig() {
   const keyLight = useMemo(() => {
-    const light = new THREE.SpotLight(0xffd4aa, 1.2); // 3500K warm
+    const light = new THREE.SpotLight(LIGHTING.key, 1.2); // 3500K warm
     light.position.set(-0.95, 3.2, 0); // Lamp bulb position
     light.target.position.set(0, 0.35, 0);
     light.angle = Math.PI / 4; // 45° cone
@@ -32,27 +33,27 @@ export function LightRig() {
   }, []);
 
   const fillLight = useMemo(() => {
-    const light = new THREE.DirectionalLight(0x88aaff, 0.18); // 6500K cool fill
+    const light = new THREE.DirectionalLight(LIGHTING.fill, 0.18); // 6500K cool fill
     light.position.set(-3, 4, -2);
     light.castShadow = false;
     return light;
   }, []);
 
   const rimLight = useMemo(() => {
-    const light = new THREE.DirectionalLight(0xffd4aa, 0.12); // 3000K brass rim
+    const light = new THREE.DirectionalLight(LIGHTING.rim, 0.12); // 3000K brass rim
     light.position.set(4, 6, 3);
     light.castShadow = false;
     return light;
   }, []);
 
   const ambientLight = useMemo(() => {
-    const light = new THREE.AmbientLight(0x1c1208, 0.22); // Warm ambient haze
+    const light = new THREE.AmbientLight(LIGHTING.ambient, 0.22); // Warm ambient haze
     return light;
   }, []);
 
   // Hemisphere light for subtle ground/sky color variation
   const hemiLight = useMemo(() => {
-    const light = new THREE.HemisphereLight(0x3a2a1a, 0x0a0806, 0.15);
+    const light = new THREE.HemisphereLight(SCENE.hemiGround, SCENE.hemiSky, 0.15);
     light.position.set(0, 5, 0);
     return light;
   }, []);
@@ -75,8 +76,8 @@ export function LightRig() {
 export function SceneFog() {
   return (
     <>
-      <fog attach="fog" args={['#140b05', 4, 18]} />
-      <color attach="background" args={['#140b05']} />
+      <fog attach="fog" args={[SCENE.fog, 4, 18]} />
+      <color attach="background" args={[SCENE.fog]} />
     </>
   );
 }

@@ -2,58 +2,16 @@ import { useRef, useMemo, useEffect, useState } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import { usePortfolioStore } from '../../store/usePortfolioStore';
+import { SKILL_ORBS, type SkillOrbData } from '../../data/skillOrbs';
+import { CATEGORY } from '../colors';
 
-/**
- * Skill Orb Data - Categories with colors matching locked palette
- */
-export interface SkillOrbData {
-  id: string;
-  name: string;
-  category: 'frontend' | 'backend' | 'devops' | 'ai' | 'hardware';
-  proficiency: number; // 0-1
-  description: string;
-}
-
-export const SKILL_ORBS: SkillOrbData[] = [
-  // Frontend - Ember palette
-  { id: 'react', name: 'React', category: 'frontend', proficiency: 0.95, description: 'Hooks, Context, Suspense, R3F integration' },
-  { id: 'typescript', name: 'TypeScript', category: 'frontend', proficiency: 0.9, description: 'Strict typing, generics, advanced types' },
-  { id: 'tailwind', name: 'Tailwind CSS', category: 'frontend', proficiency: 0.9, description: 'Utility-first, design systems, JIT' },
-  { id: 'framer', name: 'Framer Motion', category: 'frontend', proficiency: 0.85, description: 'Animations, gestures, layout animations' },
-  { id: 'threejs', name: 'Three.js / R3F', category: 'frontend', proficiency: 0.8, description: 'Shaders, post-processing, InstancedMesh' },
-
-  // Backend - Mystery (amethyst) palette
-  { id: 'node', name: 'Node.js', category: 'backend', proficiency: 0.9, description: 'Express, Fastify, native modules' },
-  { id: 'python', name: 'Python', category: 'backend', proficiency: 0.85, description: 'FastAPI, asyncio, data pipelines' },
-  { id: 'postgres', name: 'PostgreSQL', category: 'backend', proficiency: 0.8, description: 'Advanced queries, indexing, replication' },
-  { id: 'redis', name: 'Redis', category: 'backend', proficiency: 0.75, description: 'Caching, pub/sub, streams' },
-  { id: 'graphql', name: 'GraphQL', category: 'backend', proficiency: 0.7, description: 'Schema design, resolvers, federation' },
-
-  // DevOps - Teal (verdigris) palette
-  { id: 'aws', name: 'AWS', category: 'devops', proficiency: 0.85, description: 'EC2, Lambda, RDS, S3, CloudFront' },
-  { id: 'docker', name: 'Docker', category: 'devops', proficiency: 0.9, description: 'Multi-stage builds, compose, swarm' },
-  { id: 'k8s', name: 'Kubernetes', category: 'devops', proficiency: 0.7, description: 'Helm, operators, CRDs' },
-  { id: 'ci', name: 'CI/CD', category: 'devops', proficiency: 0.8, description: 'GitHub Actions, GitLab CI, pipelines' },
-  { id: 'terraform', name: 'Terraform', category: 'devops', proficiency: 0.65, description: 'Modules, state, providers' },
-
-  // AI/ML - Mystery palette
-  { id: 'pytorch', name: 'PyTorch', category: 'ai', proficiency: 0.75, description: 'Training, inference, ONNX export' },
-  { id: 'llm', name: 'LLM Integration', category: 'ai', proficiency: 0.7, description: 'RAG, fine-tuning, prompt engineering' },
-  { id: 'vector', name: 'Vector DBs', category: 'ai', proficiency: 0.65, description: 'Pinecone, Weaviate, pgvector' },
-
-  // Hardware - Brass palette (electronics meet brass)
-  { id: 'pcb', name: 'PCB Design', category: 'hardware', proficiency: 0.7, description: 'KiCad, 4-layer, impedance control' },
-  { id: 'solder', name: 'Soldering/Assembly', category: 'hardware', proficiency: 0.85, description: 'SMT, through-hole, rework' },
-  { id: 'audio', name: 'Audio Systems', category: 'hardware', proficiency: 0.8, description: 'Speaker design, crossovers, amps' },
-];
-
-// Category color mapping using locked palette tokens
-const CATEGORY_COLORS: Record<string, { color: number; emissive: number; label: string }> = {
-  frontend: { color: 0xff7a2a, emissive: 0xff9d52, label: 'Frontend' },     // ember-500 / ember-400
-  backend: { color: 0x9b59b6, emissive: 0xbb86fc, label: 'Backend' },        // mystery-500 / mystery-400
-  devops: { color: 0x2aa89e, emissive: 0x4ecdc4, label: 'DevOps' },          // teal-500 / teal-400
-  ai: { color: 0xbb86fc, emissive: 0xd0bfff, label: 'AI/ML' },               // mystery-400 bright
-  hardware: { color: 0xc9a15c, emissive: 0xe8d4a0, label: 'Hardware' },      // brass-700 / brass-500
+// Category color mapping using OKLCH tokens from colors.ts
+const CATEGORY_COLORS: Record<string, { color: string; emissive: string; label: string }> = {
+  frontend: { color: CATEGORY.frontend.color, emissive: CATEGORY.frontend.emissive, label: 'Frontend' },
+  backend: { color: CATEGORY.backend.color, emissive: CATEGORY.backend.emissive, label: 'Backend' },
+  devops: { color: CATEGORY.devops.color, emissive: CATEGORY.devops.emissive, label: 'DevOps' },
+  ai: { color: CATEGORY.ai.color, emissive: CATEGORY.ai.emissive, label: 'AI/ML' },
+  hardware: { color: CATEGORY.hardware.color, emissive: CATEGORY.hardware.emissive, label: 'Hardware' },
 };
 
 /**
@@ -154,7 +112,17 @@ export function SkillOrbSystem({
     }
   }, [actualCount, positions]);
 
+  // Pre-compute emissive colors for hover/focus to avoid creating Color objects in useFrame
+  const emissiveColors = useMemo(() => {
+    const colors: Record<string, THREE.Color> = {};
+    for (const key of Object.keys(CATEGORY_COLORS)) {
+      colors[key] = new THREE.Color(CATEGORY_COLORS[key].emissive);
+    }
+    return colors;
+  }, []);
+
   // Animation frame - floating, orbiting, pulsing
+  const dummy = useMemo(() => new THREE.Object3D(), []);
   useFrame((_, delta) => {
     if (reducedMotion) return;
 
@@ -162,12 +130,10 @@ export function SkillOrbSystem({
     const mesh = meshRef.current;
     if (!mesh) return;
 
-    const dummy = new THREE.Object3D();
     const time = clock.current;
 
     positions.pos.forEach((basePos, i) => {
       const skill = SKILL_ORBS[i % SKILL_ORBS.length];
-      const catColors = CATEGORY_COLORS[skill.category];
 
       // Gentle orbital motion
       const orbitSpeed = 0.15 + (i % 5) * 0.03;
@@ -193,7 +159,7 @@ export function SkillOrbSystem({
 
       // Update color for hover/focus glow
       if (isHovered || isFocused) {
-        mesh.setColorAt(i, new THREE.Color(catColors.emissive));
+        mesh.setColorAt(i, emissiveColors[skill.category]);
       } else {
         mesh.setColorAt(i, positions.colors[i]);
       }

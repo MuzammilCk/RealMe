@@ -4,6 +4,7 @@ import * as THREE from 'three';
 import { createNameplateTexture } from '../textures';
 import { usePortfolioStore } from '../../store/usePortfolioStore';
 import { useKeyboardFocusable } from '../../scene/accessibility/KeyboardNavigation';
+import { LEATHER } from '../colors';
 
 export default function Nameplate() {
   const tex = useMemo(() => createNameplateTexture(), []);
@@ -42,12 +43,12 @@ export default function Nameplate() {
         castShadow
       >
         <boxGeometry args={[0.9, 0.09, 0.05]} />
-        <meshStandardMaterial attach="material-0" color="#1c110a" roughness={0.5} />
-        <meshStandardMaterial attach="material-1" color="#1c110a" roughness={0.5} />
-        <meshStandardMaterial attach="material-2" color="#1c110a" roughness={0.5} />
-        <meshStandardMaterial attach="material-3" color="#1c110a" roughness={0.5} />
+        <meshStandardMaterial attach="material-0" color={LEATHER[700]} roughness={0.5} />
+        <meshStandardMaterial attach="material-1" color={LEATHER[700]} roughness={0.5} />
+        <meshStandardMaterial attach="material-2" color={LEATHER[700]} roughness={0.5} />
+        <meshStandardMaterial attach="material-3" color={LEATHER[700]} roughness={0.5} />
         <meshStandardMaterial attach="material-4" map={tex} roughness={0.4} />
-        <meshStandardMaterial attach="material-5" color="#1c110a" roughness={0.5} />
+        <meshStandardMaterial attach="material-5" color={LEATHER[700]} roughness={0.5} />
       </mesh>
     </group>
   );

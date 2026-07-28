@@ -5,7 +5,7 @@ import { forwardRef, type ReactNode, type ButtonHTMLAttributes } from 'react';
  * IconButton - Icon-only button with brass/ember/mystery variants
  * ARCHITECTURE-v2 §2, §6: Premium motion, locked tokens
  */
-export interface IconButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'children'> {
+export interface IconButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'onAnimationStart' | 'onAnimationEnd' | 'onAnimationIteration' | 'onTransitionEnd'> {
   /** Button variant */
   variant?: 'brass' | 'ember' | 'mystery' | 'ghost';
   /** Button size */
@@ -105,7 +105,7 @@ export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
           scale: 1.05,
         }}
         whileTap={disabled ? undefined : { scale: 0.95 }}
-        {...props}
+        {...props as any}
       >
         {children}
       </motion.button>

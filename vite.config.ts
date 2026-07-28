@@ -16,6 +16,9 @@ export default defineConfig({
   },
   build: {
     target: 'es2020',
+    cssCodeSplit: true,
+    sourcemap: false,
+    chunkSizeWarningLimit: 1000,
     rollupOptions: {
       output: {
         // Split the heavy 3D stack out of the main chunk so Layer B (and the

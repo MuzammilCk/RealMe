@@ -1,5 +1,5 @@
 import { useContext } from 'react';
-import { ThemeContext, type ThemeContextValue } from '../app/providers/ThemeProvider';
+import { ThemeContext, type ThemeContextValue } from '../../app/providers/ThemeProvider';
 
 /**
  * Hook to access theme context (mode, resolved theme, toggle functions)

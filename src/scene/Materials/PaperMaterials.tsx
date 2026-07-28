@@ -1,13 +1,14 @@
 import { useMemo } from 'react';
 import * as THREE from 'three';
 import { type MeshStandardMaterialProps } from './types';
+import { PARCHMENT, UTILITY } from '../colors';
 
 /**
  * Paper Material - Parchment-like paper for diary pages
  * ARCHITECTURE-v2 §2 Locked Palette: parchment-900, parchment-700, parchment-500, parchment-300
  */
 export function PaperMaterial({
-  color = '#f5e8d0',
+  color = PARCHMENT[300],
   roughness = 0.95,
   metalness = 0.0,
   ...props
@@ -17,7 +18,7 @@ export function PaperMaterial({
     canvas.width = 512;
     canvas.height = 512;
     const ctx = canvas.getContext('2d')!;
-    ctx.fillStyle = '#808080';
+    ctx.fillStyle = UTILITY.normalMap;
     ctx.fillRect(0, 0, 512, 512);
     // Paper fiber texture
     for (let i = 0; i < 5000; i++) {
@@ -45,7 +46,7 @@ export function PaperMaterial({
     canvas.width = 512;
     canvas.height = 512;
     const ctx = canvas.getContext('2d')!;
-    ctx.fillStyle = '#ffffff';
+    ctx.fillStyle = UTILITY.aoWhite;
     ctx.fillRect(0, 0, 512, 512);
     // Edge darkening for page depth
     const gradient = ctx.createRadialGradient(256, 256, 0, 256, 256, 300);
@@ -79,7 +80,7 @@ export function PaperMaterial({
 export function AgedPaperMaterial(props: MeshStandardMaterialProps) {
   return (
     <PaperMaterial
-      color="#ede0c8"
+      color={PARCHMENT[500]}
       roughness={0.98}
       {...props}
     />
@@ -92,7 +93,7 @@ export function AgedPaperMaterial(props: MeshStandardMaterialProps) {
 export function WritingPaperMaterial(props: MeshStandardMaterialProps) {
   return (
     <PaperMaterial
-      color="#faf4eb"
+      color={PARCHMENT[100]}
       roughness={0.92}
       {...props}
     />
@@ -103,10 +104,10 @@ export function WritingPaperMaterial(props: MeshStandardMaterialProps) {
  * Ink Material - For text/ink on paper (can have subtle emissive for glow effects)
  */
 export function InkMaterial({
-  color = '#1a0f08',
+  color = PARCHMENT[900],
   roughness = 0.9,
   metalness = 0.0,
-  emissive = '#000000',
+  emissive = UTILITY.emissiveBlack,
   emissiveIntensity = 0,
   ...props
 }: MeshStandardMaterialProps) {

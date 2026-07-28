@@ -4,6 +4,12 @@ import { useThree } from '@react-three/fiber';
 import { usePortfolioStore } from '../../store/usePortfolioStore';
 import { ScrollCamera, type CameraKeyframe } from '../camera/ScrollCamera';
 import { useGyroCamera } from '../camera/GyroCamera';
+import {
+  CAMERA_POSITION_HERO,
+  CAMERA_LOOKAT_HERO,
+  CANVAS_CAMERA,
+  IDLE_DRIFT,
+} from '../camera/config';
 import gsap from 'gsap';
 
 /**
@@ -58,10 +64,10 @@ export function useCamera(): UseCameraReturn {
       keyframes: [
         {
           progress: 0,
-          position: new THREE.Vector3(0, 4.0, 6.4),
+          position: CAMERA_POSITION_HERO,
           rotation: new THREE.Euler(0, 0, 0),
-          fov: 38,
-          lookAt: new THREE.Vector3(0, 0.35, 0),
+          fov: CANVAS_CAMERA.fov,
+          lookAt: CAMERA_LOOKAT_HERO,
         },
         {
           progress: 0.15,
@@ -114,17 +120,17 @@ export function useCamera(): UseCameraReturn {
       idleClock.current += 0.016; // ~60fps
 
       // Gentle orbital drift
-      camera.position.x = Math.sin(idleClock.current * 0.15) * 0.15;
-      camera.position.y = 4.0 + Math.sin(idleClock.current * 0.1) * 0.08;
-      camera.position.z = 6.4 + Math.cos(idleClock.current * 0.12) * 0.1;
+      camera.position.x = Math.sin(idleClock.current * IDLE_DRIFT.frequencyX) * IDLE_DRIFT.amplitudeX;
+      camera.position.y = CAMERA_POSITION_HERO.y + Math.sin(idleClock.current * IDLE_DRIFT.frequencyY) * IDLE_DRIFT.amplitudeY;
+      camera.position.z = CAMERA_POSITION_HERO.z + Math.cos(idleClock.current * IDLE_DRIFT.frequencyZ) * IDLE_DRIFT.amplitudeZ;
 
       // Subtle breathing FOV
       if ('fov' in camera) {
-        camera.fov = 38 + Math.sin(idleClock.current * 0.08) * 1.5;
+        camera.fov = CANVAS_CAMERA.fov + Math.sin(idleClock.current * 0.08) * 1.5;
         camera.updateProjectionMatrix();
       }
 
-      camera.lookAt(0, 0.35, 0);
+      camera.lookAt(CAMERA_LOOKAT_HERO.x, CAMERA_LOOKAT_HERO.y, CAMERA_LOOKAT_HERO.z);
       requestAnimationFrame(animateIdle);
     };
 
@@ -216,7 +222,7 @@ export function useCamera(): UseCameraReturn {
       position: camera.position.clone(),
       rotation: camera.rotation.clone(),
       fov: 'fov' in camera ? camera.fov : 50,
-      target: new THREE.Vector3(0, 0.35, 0), // Default lookAt
+      target: CAMERA_LOOKAT_HERO,
     };
   }, [camera]);
 

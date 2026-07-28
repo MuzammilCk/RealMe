@@ -307,6 +307,7 @@
 
 /* ==========================================================================
    COLOR BLIND SAFE MODE — Deuteranopia (red-green) safe palette
+   Manual toggle via .color-blind-safe class on <html>
    ========================================================================== */
 .color-blind-safe {
   /* Brass (gold/copper) → more distinct from ember (orange/red) for deuteranopia */
@@ -364,52 +365,6 @@
     --shadow-2: var(--shadow-3);
     --shadow-3: var(--shadow-4);
   }
-}
-
-/* ==========================================================================
-   COLOR BLIND SAFE MODE — Deuteranopia (red-green) simulation
-   ========================================================================== */
-
-/* Manual toggle via .color-blind-safe class on <html> */
-.color-blind-safe {
-  /*
-     Deuteranopia-safe adjustments:
-     - Brass (yellow-orange) shifts toward more distinct amber
-     - Ember (orange-red) shifts toward distinct warm amber (avoiding red confusion)
-     - Mystery (purple/amethyst) remains distinct - already good for deuteranopes
-     - Teal (blue-green) shifts toward more distinct blue-cyan (avoiding green confusion)
-     - Ensure text/background contrast remains high
-  */
-
-  /* Brass -> More distinct amber/gold (remains distinguishable) */
-  --brass-900: oklch(0.38 0.10 70);
-  --brass-700: oklch(0.55 0.15 70);
-  --brass-500: oklch(0.75 0.16 75);
-  --brass-300: oklch(0.90 0.12 80);
-
-  /* Ember -> Shift away from red toward distinct warm amber */
-  --ember-500: oklch(0.65 0.18 50);
-  --ember-400: oklch(0.78 0.16 55);
-  --ember-300: oklch(0.90 0.12 60);
-
-  /* Mystery (amethyst) -> Keep but ensure blue-purple distinction */
-  --mystery-500: oklch(0.50 0.18 275);
-  --mystery-400: oklch(0.65 0.20 275);
-  --mystery-300: oklch(0.80 0.15 280);
-
-  /* Teal (verdigris) -> Shift toward distinct cyan/blue (avoid green confusion) */
-  --teal-500: oklch(0.55 0.15 200);
-  --teal-400: oklch(0.70 0.16 200);
-  --teal-300: oklch(0.85 0.12 205);
-
-  /* Semantic mappings update automatically via Layer B references */
-
-  /* Boost contrast for text */
-  --text-secondary: var(--parchment-700);
-  --text-muted: oklch(0.75 0.04 50 / 0.9);
-  --border-subtle: var(--brass-700);
-  --border-default: var(--brass-500);
-  --border-strong: var(--brass-300);
 }
 
 /* ==========================================================================

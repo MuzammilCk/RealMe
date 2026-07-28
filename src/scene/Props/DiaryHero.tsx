@@ -3,6 +3,7 @@ import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { usePortfolioStore } from '../../store/usePortfolioStore';
 import { LeatherMaterial, BrassMaterial, PolishedBrassMaterial } from '../Materials';
+import { LEATHER, PARCHMENT, EMBER, BRASS, ACCENT } from '../colors';
 
 interface DiaryHeroProps {
   coverPivotRef: React.RefObject<THREE.Group | null>;
@@ -58,13 +59,13 @@ export function DiaryHero({ coverPivotRef }: DiaryHeroProps) {
       {/* === BACK COVER === */}
       <mesh castShadow receiveShadow>
         <boxGeometry args={[1.2, 0.12, 0.86]} />
-        <LeatherMaterial color="#1c110a" roughness={0.7} />
+        <LeatherMaterial color={LEATHER[700]} roughness={0.7} />
       </mesh>
 
       {/* === PAGES BLOCK — Parchment edge visible as thin exposed band === */}
       <mesh position={[0, 0.005, 0]} castShadow receiveShadow>
         <boxGeometry args={[1.1, 0.13, 0.8]} />
-        <meshStandardMaterial color="#ede0c8" roughness={0.95} metalness={0.0} />
+        <meshStandardMaterial color={PARCHMENT[500]} roughness={0.95} metalness={0.0} />
       </mesh>
 
       {/* === FRONT COVER, parented to spine-edge pivot === */}
@@ -72,15 +73,15 @@ export function DiaryHero({ coverPivotRef }: DiaryHeroProps) {
         <mesh position={[0.6, 0, 0]} castShadow receiveShadow>
           <boxGeometry args={[1.2, 0.05, 0.86]} />
           {/* Bottom face - leather back */}
-          <LeatherMaterial attach="material-0" color="#1c110a" roughness={0.7} />
+          <LeatherMaterial attach="material-0" color={LEATHER[700]} roughness={0.7} />
           {/* Top face - leather front */}
-          <LeatherMaterial attach="material-1" color="#1c110a" roughness={0.7} />
+          <LeatherMaterial attach="material-1" color={LEATHER[700]} roughness={0.7} />
           {/* Front face - cover texture with title */}
           <LeatherMaterial attach="material-2" map={coverTexture} roughness={0.5} />
           {/* Side faces - leather edges */}
-          <LeatherMaterial attach="material-3" color="#1a0f08" roughness={0.85} />
-          <LeatherMaterial attach="material-4" color="#1c110a" roughness={0.7} />
-          <LeatherMaterial attach="material-5" color="#1c110a" roughness={0.7} />
+          <LeatherMaterial attach="material-3" color={LEATHER[900]} roughness={0.85} />
+          <LeatherMaterial attach="material-4" color={LEATHER[700]} roughness={0.7} />
+          <LeatherMaterial attach="material-5" color={LEATHER[700]} roughness={0.7} />
         </mesh>
 
         {/* === BRASS CORNER FITTINGS === */}
@@ -123,7 +124,7 @@ export function DiaryHero({ coverPivotRef }: DiaryHeroProps) {
       <pointLight
         ref={hoverLightRef}
         position={[0, 0.5, 0.4]}
-        color="#ff9d52"
+        color={EMBER[400]}
         intensity={hoverIntensity}
         distance={2.2}
         decay={2}
@@ -147,7 +148,7 @@ function BookmarkRibbon() {
   }, []);
 
   const material = useMemo(() => new THREE.MeshStandardMaterial({
-    color: '#8b2d2d', // Deep red ribbon
+    color: ACCENT.ribbon,
     roughness: 0.8,
     metalness: 0.0,
     side: THREE.DoubleSide,
@@ -186,7 +187,7 @@ function createDiaryCoverTexture(): THREE.CanvasTexture {
   const ctx = canvas.getContext('2d')!;
 
   // Base leather color
-  ctx.fillStyle = '#1c110a';
+  ctx.fillStyle = LEATHER[700];
   ctx.fillRect(0, 0, 1024, 1024);
 
   // Leather grain
@@ -208,13 +209,13 @@ function createDiaryCoverTexture(): THREE.CanvasTexture {
 
   // Embossed title area (top center)
   const titleY = 180;
-  ctx.fillStyle = 'rgba(201,161,92,0.15)'; // Brass color
+  ctx.fillStyle = BRASS[700];
   ctx.beginPath();
   ctx.roundRect(362, titleY, 300, 80, 8);
   ctx.fill();
 
   // Subtle border lines
-  ctx.strokeStyle = 'rgba(201,161,92,0.3)';
+  ctx.strokeStyle = BRASS[700];
   ctx.lineWidth = 2;
   ctx.beginPath();
   ctx.roundRect(362, titleY, 300, 80, 8);

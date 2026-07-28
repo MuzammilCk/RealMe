@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { forwardRef, useState, useEffect, useCallback, type ReactNode, type HTMLAttributes } from 'react';
+import { forwardRef, useState, useEffect, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { Button } from './Button';
 import { IconButton } from './IconButton';
@@ -25,6 +25,8 @@ export interface ModalProps {
   closeOnBackdrop?: boolean;
   /** Custom className */
   className?: string;
+  /** Custom style */
+  style?: React.CSSProperties;
 }
 
 const sizeStyles = {
@@ -228,7 +230,7 @@ export function ConfirmModal({
 
   return (
     <Modal open={open} onClose={onClose} title={title} size="sm">
-      <div style={{ color: 'var(--text-secondary)', lineHeight: 1.7, marginBottom: 'var(--space-6)' }}>
+      <div style={{ color: colors.color, lineHeight: 1.7, marginBottom: 'var(--space-6)' }}>
         {message}
       </div>
 

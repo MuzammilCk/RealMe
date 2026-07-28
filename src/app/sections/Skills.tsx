@@ -1,13 +1,10 @@
 import { useRef, useState } from 'react';
 import { motion } from 'framer-motion';
-import { useThree, useFrame } from '@react-three/fiber';
-import * as THREE from 'three';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { usePortfolioStore } from '../../store/usePortfolioStore';
 import { useScroll } from '../providers/ScrollProvider';
-import { SKILL_ORBS, type SkillOrbData } from '../../scene/Props/SkillOrbSystem';
-import SkillOrbSystem from '../../scene/Props/SkillOrbSystem';
+import { SKILL_ORBS, type SkillOrbData } from '../../data/skillOrbs';
 import { useAudio } from '../providers/AudioProvider';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -19,15 +16,11 @@ gsap.registerPlugin(ScrollTrigger);
 export function Skills() {
   const sectionRef = useRef<HTMLDivElement>(null);
   const { section: currentSection } = useScroll();
-  const { diaryState, threeDEnabled, reducedMotion } = usePortfolioStore();
-  const { camera } = useThree();
-  const { brassClick, hoverGlow } = useAudio();
+  const { diaryState, threeDEnabled } = usePortfolioStore();
+  const { brassClick } = useAudio();
 
   const [activeCategory, setActiveCategory] = useState<string | 'all'>('all');
   const [hoveredSkill, setHoveredSkill] = useState<SkillOrbData | null>(null);
-  const cameraTargetRef = useRef(new THREE.Vector3(0, 1.5, 0));
-  const cameraDistanceRef = useRef(5.5);
-  const isOrbitingRef = useRef(true);
 
   const categories = ['all', 'frontend', 'backend', 'devops', 'ai', 'hardware'];
   const categoryLabels: Record<string, string> = {
@@ -48,22 +41,7 @@ export function Skills() {
     hardware: 'var(--text-accent)',
   };
 
-  // Camera behavior for skills section
-  useFrame(() => {
-    if (!threeDEnabled || diaryState !== 'open' || currentSection !== 'skills') return;
-
-    if (isOrbitingRef.current && !reducedMotion) {
-      // Slow orbital camera around skill constellation
-      const time = performance.now() * 0.0003;
-      const radius = cameraDistanceRef.current;
-      cameraTargetRef.current.set(0, 1.5, 0);
-
-      camera.position.x = Math.cos(time) * radius;
-      camera.position.z = Math.sin(time) * radius;
-      camera.position.y = 3.5 + Math.sin(time * 0.7) * 0.3;
-      camera.lookAt(cameraTargetRef.current);
-    }
-  });
+  // Camera behavior for skills section is handled by useSceneSync in the scene layer
 
   // Filter orbs by category
   const filteredOrbs = activeCategory === 'all'
@@ -142,7 +120,7 @@ export function Skills() {
         ))}
       </div>
 
-      {/* 3D Skill Orb Constellation */}
+      {/* 3D Skill Orb Constellation — rendered in CanvasRoot via scene layer */}
       {threeDEnabled && diaryState === 'open' && (
         <div
           className="skills-3d-canvas"
@@ -153,18 +131,7 @@ export function Skills() {
             pointerEvents: 'none',
           }}
         >
-          <SkillOrbSystem
-            count={filteredOrbs.length}
-            radius={2.5}
-            onHover={(_skill) => {
-              setHoveredSkill(_skill);
-              hoverGlow();
-            }}
-            onClick={() => {
-              brassClick();
-              // Could open skill detail modal
-            }}
-          />
+          {/* Skill orbs are rendered by the scene layer (CanvasRoot) */}
         </div>
       )}
 

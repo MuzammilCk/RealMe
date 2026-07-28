@@ -1,5 +1,6 @@
-import { motion, HTMLMotionProps } from 'framer-motion';
-import { forwardRef, type ReactNode, type HTMLAttributes } from 'react';
+import { motion } from 'framer-motion';
+import type { HTMLMotionProps } from 'framer-motion';
+import { forwardRef, type ReactNode } from 'react';
 
 /**
  * Card - Elevated container with leather/brass border variants
@@ -20,7 +21,7 @@ export interface CardProps extends Omit<HTMLMotionProps<'div'>, 'children'> {
   onClick?: () => void;
 }
 
-const elevationShadows = {
+const elevationShadows: Record<string, string> = {
   1: 'var(--shadow-1)',
   2: 'var(--shadow-2)',
   3: 'var(--shadow-3)',
@@ -74,7 +75,7 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
     return (
       <motion.div
         ref={ref}
-        style={baseStyle}
+        style={baseStyle as any}
         className={className}
         onClick={onClick}
         whileHover={hoverLift && !isInteractive ? {

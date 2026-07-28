@@ -4,6 +4,7 @@ import { RGBELoader } from 'three-stdlib';
 import * as THREE from 'three';
 import { Environment } from '@react-three/drei';
 import { usePortfolioStore } from '../../store/usePortfolioStore';
+import { SCENE, EMBER } from '../colors';
 
 /**
  * HDRI Environment - Warm workshop lighting
@@ -53,11 +54,11 @@ export function ProceduralEnvironment() {
   return (
     <>
       {/* Warm ambient fill */}
-      <ambientLight color="#1c1208" intensity={0.35} />
+      <ambientLight color={SCENE.ambient} intensity={0.35} />
 
       {/* Warm key light simulating lamp */}
       <directionalLight
-        color="#ff9d52"
+        color={EMBER[400]}
         intensity={0.5}
         position={[-2, 4, -1.5]}
         castShadow
@@ -75,15 +76,15 @@ export function ProceduralEnvironment() {
 
       {/* Cool fill for contrast */}
       <directionalLight
-        color="#0e1c2a"
+        color={SCENE.coolFill}
         intensity={0.1}
         position={[3, 5, 2]}
       />
 
       {/* Subtle hemisphere for ground bounce */}
       <hemisphereLight
-        groundColor="#1a0f08"
-        color="#2a1a0c"
+        groundColor={SCENE.hemiGround}
+        color={SCENE.hemiSky}
         intensity={0.15}
       />
     </>
@@ -97,8 +98,8 @@ export function ProceduralEnvironment() {
 export function SceneFog() {
   return (
     <>
-      <fog attach="fog" args={['#140b05', 4, 18]} />
-      <color attach="background" args={['#140b05']} />
+      <fog attach="fog" args={[SCENE.fog, 4, 18]} />
+      <color attach="background" args={[SCENE.fog]} />
     </>
   );
 }

@@ -3,6 +3,7 @@ import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { usePortfolioStore } from '../../store/usePortfolioStore';
 import { useKeyboardFocusable } from '../../scene/accessibility/KeyboardNavigation';
+import { ACCENT } from '../colors';
 
 export default function Mug() {
   const { reducedMotion } = usePortfolioStore();
@@ -40,11 +41,11 @@ export default function Mug() {
         position={[0, 0, 0]}
       >
         <cylinderGeometry args={[0.13, 0.11, 0.18, 20]} />
-        <meshStandardMaterial color="#1c1c1c" roughness={0.4} />
+        <meshStandardMaterial color={ACCENT.camera} roughness={0.4} />
       </mesh>
       <mesh position={[0.14, 0, 0]} rotation={[Math.PI / 2, 0, 0]}>
         <torusGeometry args={[0.07, 0.018, 8, 16, Math.PI * 1.3]} />
-        <meshStandardMaterial color="#1c1c1c" roughness={0.4} />
+        <meshStandardMaterial color={ACCENT.camera} roughness={0.4} />
       </mesh>
     </group>
   );

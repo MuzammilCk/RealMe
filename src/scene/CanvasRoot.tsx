@@ -2,9 +2,11 @@ import { useRef, useEffect, useState } from 'react';
 import { Canvas } from '@react-three/fiber';
 import * as THREE from 'three';
 import { usePortfolioStore } from '../store/usePortfolioStore';
+import { CANVAS_CAMERA, CAMERA_POSITION_HERO } from './camera/config';
 import Table from './Table';
 import Diary from './Diary';
 import CameraRig from './CameraRig';
+import SceneSync from './SceneSync';
 import Lamp from './Props/Lamp';
 import Globe from './Props/Globe';
 import Books from './Props/Books';
@@ -48,8 +50,8 @@ export default function CanvasRoot() {
     <div className={`canvas-root${dimmed ? ' dimmed' : ''}`}>
       <Canvas
         shadows
-        dpr={isMobile ? [1, 1.5] : [1, 2]}
-        camera={{ fov: 38, position: [0, 4.0, 6.4], near: 0.1, far: 100 }}
+        dpr={isMobile ? CANVAS_CAMERA.dpr.mobile : CANVAS_CAMERA.dpr.desktop}
+        camera={{ fov: CANVAS_CAMERA.fov, position: [CAMERA_POSITION_HERO.x, CAMERA_POSITION_HERO.y, CAMERA_POSITION_HERO.z], near: CANVAS_CAMERA.near, far: CANVAS_CAMERA.far }}
         gl={{
           antialias: !isMobile,
           toneMapping: THREE.ACESFilmicToneMapping,
@@ -96,6 +98,7 @@ export default function CanvasRoot() {
         {!isMobile && <VolumetricLight lightRef={lampLightRef} />}
 
         <CameraRig coverPivotRef={coverPivotRef} lampLightRef={lampLightRef} />
+        <SceneSync />
       </Canvas>
     </div>
   );

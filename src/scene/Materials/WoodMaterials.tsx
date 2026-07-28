@@ -1,18 +1,19 @@
 import { useMemo } from 'react';
 import * as THREE from 'three';
 import { type MeshStandardMaterialProps } from './types';
+import { WALNUT, LEATHER, UTILITY } from '../colors';
 
 /**
  * Wood Material - Warm walnut for desk, furniture
  * ARCHITECTURE-v2 §2 Locked Palette: walnut-900, walnut-700, walnut-500
  */
 export function WoodMaterial({
-  color = '#4a2f1c',
+  color = WALNUT[900],
   roughness = 0.55,
   metalness = 0.04,
   ...props
 }: MeshStandardMaterialProps) {
-  const colorValue = typeof color === 'string' ? color : '#4a2f1c';
+  const colorValue = typeof color === 'string' ? color : WALNUT[900];
 
   const map = useMemo(() => {
     const canvas = document.createElement('canvas');
@@ -72,7 +73,7 @@ export function WoodMaterial({
     canvas.width = 512;
     canvas.height = 512;
     const ctx = canvas.getContext('2d')!;
-    ctx.fillStyle = '#808080';
+    ctx.fillStyle = UTILITY.normalMap;
     ctx.fillRect(0, 0, 512, 512);
     // Wood grain normal
     for (let i = 0; i < 60; i++) {
@@ -97,7 +98,7 @@ export function WoodMaterial({
     canvas.width = 512;
     canvas.height = 512;
     const ctx = canvas.getContext('2d')!;
-    ctx.fillStyle = '#ffffff';
+    ctx.fillStyle = UTILITY.aoWhite;
     ctx.fillRect(0, 0, 512, 512);
     // Subtle wood pore shadows
     for (let i = 0; i < 2000; i++) {
@@ -131,7 +132,7 @@ export function WoodMaterial({
 export function DarkWalnutMaterial(props: MeshStandardMaterialProps) {
   return (
     <WoodMaterial
-      color="#2b1810"
+      color={LEATHER[900]}
       roughness={0.75}
       metalness={0.02}
       {...props}
@@ -145,7 +146,7 @@ export function DarkWalnutMaterial(props: MeshStandardMaterialProps) {
 export function LightWalnutMaterial(props: MeshStandardMaterialProps) {
   return (
     <WoodMaterial
-      color="#8b6914"
+      color={WALNUT[500]}
       roughness={0.5}
       metalness={0.05}
       {...props}
@@ -165,7 +166,7 @@ export function DeskSurfaceMaterial() {
     const ctx = canvas.getContext('2d')!;
 
     // Base walnut
-    ctx.fillStyle = '#4a2f1c';
+    ctx.fillStyle = WALNUT[900];
     ctx.fillRect(0, 0, 2048, 1024);
 
     // Wood grain - horizontal for desk surface
@@ -232,7 +233,7 @@ export function DeskSurfaceMaterial() {
     canvas.width = 1024;
     canvas.height = 512;
     const ctx = canvas.getContext('2d')!;
-    ctx.fillStyle = '#808080';
+    ctx.fillStyle = UTILITY.normalMap;
     ctx.fillRect(0, 0, 1024, 512);
     for (let i = 0; i < 40; i++) {
       const y = (i / 40) * 512 + (Math.random() - 0.5) * 6;
@@ -256,7 +257,7 @@ export function DeskSurfaceMaterial() {
       map={map}
       normalMap={normalMap}
       normalScale={[0.35, 0.35]}
-      color="#4a2f1c"
+      color={WALNUT[900]}
       roughness={0.55}
       metalness={0.04}
     />

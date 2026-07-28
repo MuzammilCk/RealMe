@@ -2,6 +2,11 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import type { ScrollTrigger as ScrollTriggerType } from 'gsap/ScrollTrigger';
 import * as THREE from 'three';
+import {
+  CAMERA_POSITION_HERO,
+  CAMERA_LOOKAT_HERO,
+  CANVAS_CAMERA,
+} from './config';
 
 // Register ScrollTrigger plugin
 if (typeof gsap !== 'undefined') {
@@ -118,7 +123,7 @@ export class ScrollCamera {
 
             // Slerp lookAt
             const currentLookAt = new THREE.Vector3();
-            currentLookAt.lerpVectors(prevKf.lookAt || new THREE.Vector3(0, 0.35, 0), kf.lookAt!, eased);
+            currentLookAt.lerpVectors(prevKf.lookAt || CAMERA_LOOKAT_HERO, kf.lookAt!, eased);
             this.camera.lookAt(currentLookAt);
           },
         }, prevKf.progress * 100);
@@ -254,7 +259,7 @@ export class ScrollCamera {
       position: new THREE.Vector3().lerpVectors(prev.position, next.position, eased),
       rotation,
       fov: THREE.MathUtils.lerp(prev.fov || 50, next.fov || 50, eased),
-      lookAt: new THREE.Vector3().lerpVectors(prev.lookAt || new THREE.Vector3(0, 0.35, 0), next.lookAt || new THREE.Vector3(0, 0.35, 0), eased),
+      lookAt: new THREE.Vector3().lerpVectors(prev.lookAt || CAMERA_LOOKAT_HERO, next.lookAt || CAMERA_LOOKAT_HERO, eased),
     };
   }
 
@@ -289,10 +294,10 @@ export const DEFAULT_DIARY_KEYFRAMES: CameraKeyframe[] = [
   {
     // Intro: Diary cover view
     progress: 0,
-    position: new THREE.Vector3(0, 4.0, 6.4),
+    position: CAMERA_POSITION_HERO,
     rotation: new THREE.Euler(0, 0, 0),
-    fov: 38,
-    lookAt: new THREE.Vector3(0, 0.35, 0),
+    fov: CANVAS_CAMERA.fov,
+    lookAt: CAMERA_LOOKAT_HERO,
   },
   {
     // Early scroll: Pull back slightly, reveal desk
@@ -341,7 +346,7 @@ export const DEFAULT_DIARY_KEYFRAMES: CameraKeyframe[] = [
  */
 export const SECTION_KEYFRAMES: Record<string, CameraKeyframe[]> = {
   hero: [
-    { progress: 0, position: new THREE.Vector3(0, 4.0, 6.4), fov: 38, lookAt: new THREE.Vector3(0, 0.35, 0) },
+    { progress: 0, position: CAMERA_POSITION_HERO, fov: CANVAS_CAMERA.fov, lookAt: CAMERA_LOOKAT_HERO },
     { progress: 1, position: new THREE.Vector3(0, 3.5, 5.0), fov: 40, lookAt: new THREE.Vector3(0, 0.5, 0) },
   ],
   about: [
